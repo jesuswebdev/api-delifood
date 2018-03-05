@@ -1,15 +1,18 @@
 var config = require('./config'),
-    mongoose = require('mongoose'),
-    options = { useMongoClient: true };
+    mongoose = require('mongoose');
 
-module.exports = function(){
-    mongoose.connect(config.db, options);
-    var db = mongoose.connection;
+const databaseConnection = {
+    name: 'databaseConnection',
+    version: '1.0.0',
+    register: async (server, options) => {
+        mongoose.connect(config.db.uri);
+        let db = mongoose.connection;
 
-    require('../app/models/user.model');
-    require('../app/models/product.model');
-    require('../app/models/order.model');
-    require('../app/models/category.model');
+        require('../plugins/users/user.model');
 
-    return db;
-};
+        return db;
+
+    }
+}
+
+module.exports = databaseConnection;

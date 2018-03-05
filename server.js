@@ -12,13 +12,16 @@ const server = new Hapi.Server({
 // Start the server
 async function start(){
     try { 
-        //require('./config/routes')(server);
-        await server.register(require('./app/plugins/users/users.route'),{
+        //register db
+        await server.register(require('./config/mongoose'));
+        //register authentication scheme
+        await server.register(require('./plugins/auth/auth.scheme'));
+        //register routes
+        await server.register(require('./plugins/users/users.route'),{
             routes: {
-                prefix: '/users'
+                prefix: '/api/users'
             }
         });
-        await server.register(require('./app/plugins/auth/auth.scheme'));
         await server.start(); 
     }
     catch(err){ 

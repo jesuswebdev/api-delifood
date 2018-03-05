@@ -8,11 +8,12 @@
     "start": "node server.js"
   },
   "author": "jd",
-"repository": "git@gitlab.com:jedar93/delifood-api.git",
+  "repository": "git@gitlab.com:jedar93/delifood-api.git",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^1.0.3",
     "hapi": "^17.2.1",
-    "jsonwebtoken": "^8.2.0"
+    "jsonwebtoken": "^8.2.0",
+    "mongoose": "^5.0.8"
   }
 }

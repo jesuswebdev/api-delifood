@@ -1,8 +1,8 @@
 module.exports = {
-    db: 'mongodb://localhost/delivery',
-    sessionSecret: 'developmentSessionSecret',
-    jwtSecret: 'myJWTdevSecretKey',
-    jwtSession: {
-    	session: false
+    db: {
+        uri: 'mongodb://localhost/delivery'
+    },
+    jwt: {
+        secret: ''
     }
 };
