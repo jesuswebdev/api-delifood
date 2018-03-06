@@ -14,8 +14,11 @@ async function start(){
     try { 
         //register db
         await server.register(require('./config/mongoose'));
+
         //register authentication scheme
         await server.register(require('./plugins/auth/auth.scheme'));
+        await server.register(require('./plugins/basic-auth/basic-auth.scheme'));
+
         //register routes
         await server.register(require('./plugins/users/users.route'),{
             routes: {
@@ -23,6 +26,7 @@ async function start(){
             }
         });
         await server.start(); 
+        
     }
     catch(err){ 
         console.log(err); 

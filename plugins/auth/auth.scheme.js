@@ -3,9 +3,8 @@
 const boom = require('boom');
 const jwt = require('jsonwebtoken');
 const cfg = require('../../config/config');
-const User = require('mongoose').model('User');
 
-const authScheme = {
+module.exports = {
     name: 'authScheme',
     version: '1.0.0',
     register: async function(server, options){
@@ -13,15 +12,17 @@ const authScheme = {
             return {
                 authenticate: async (req, h) => {
 
-                    let token = req.raw.req.headers.authorization;
+                    let User = req.server.plugins.database.mongoose.model('User');
+
+                    let token = req.raw.req.headers.authorization.slice(7);
 
                     try{
                         var payload = jwt.verify(token, cfg.jwt.secret);
                     }
                     catch(e){ return boom.unauthorized(); }
-
+                    
                     try{
-                        var authUser = await User.find({ email: payload }).exec();
+                        var authUser = await User.findOne({ email: payload.sub }).exec();
                     }  
                     catch(e){ return boom.internal(); }
 
@@ -29,9 +30,10 @@ const authScheme = {
 
                     let credenciales = {
                         name: authUser.name,
-                        email: authUser.email
+                        email: authUser.email,
+                        scope: authUser.role
                     };
-
+                    
                     return h.authenticated({ credentials: credenciales });
                 }//authenticate
             };//return
@@ -44,5 +46,3 @@ const authScheme = {
         });
     }
 }
-
-module.exports = authScheme;
