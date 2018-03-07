@@ -13,16 +13,21 @@ module.exports = {
                 authenticate: async (req, h) => {
 
                     let User = req.server.plugins.database.mongoose.model('User');
+                    let token;
 
-                    let token = req.raw.req.headers.authorization.slice(7);
+                    try{
+                        token = req.raw.req.headers.authorization.slice(7);
+                    }catch(e){
+                        return boom.unauthorized('Token no válido')
+                    }
 
                     try{
                         var payload = jwt.verify(token, cfg.jwt.secret);
                     }
-                    catch(e){ return boom.unauthorized(); }
+                    catch(e){ return boom.unauthorized('Token no válido'); }
                     
                     try{
-                        var authUser = await User.findOne({ email: payload.sub }).exec();
+                        var authUser = await User.findOne({ _id: payload.sub });
                     }  
                     catch(e){ return boom.internal(); }
 
@@ -31,7 +36,8 @@ module.exports = {
                     let credenciales = {
                         name: authUser.name,
                         email: authUser.email,
-                        scope: authUser.role
+                        scope: authUser.role,
+                        id: authUser.id
                     };
                     
                     return h.authenticated({ credentials: credenciales });

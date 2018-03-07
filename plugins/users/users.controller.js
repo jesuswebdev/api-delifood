@@ -15,11 +15,11 @@ exports.create = async (req, h) => {
 
     try{
         var registeredUser = await newUser.save();
-    }catch(e){
+    }catch(e){//manejar error 11000 correo en uso
         return boom.internal('Error al registrar el usuario');
     }
 
-    let token = await jwt.sign(registeredUser.email, cfg.jwt.secret);
+    let token = await jwt.sign(registeredUser.id, cfg.jwt.secret);
 
     return { statusCode: 201, data: { user: registeredUser, token: token } };
 
@@ -39,7 +39,45 @@ exports.list = async (req, h) => {
 };
 
 exports.findById = async (req, h) => {
-    return { params: req.params };
+    let User = req.server.plugins.database.mongoose.model('User');
+    let foundUser = null;
+
+    try{
+        foundUser = await User.findOne({ _id: req.params.id }, { password: false });
+    }catch(e){
+        return boom.internal('Error consultando la base de datos');
+    }
+
+    return { statusCode: 200, data: { user: foundUser } };
+};
+
+exports.update = async (req, h) => {
+    let User = req.server.plugins.database.mongoose.model('User');
+
+    try{
+        var updated = await User.findByIdAndUpdate(req.params.id, req.payload).exec();
+    }//manejar error 11000 correo en uso
+    catch(e){
+        return { error: e };
+    }
+    
+    return { updated: updated };
+};
+
+exports.delete = async (req, h) => {
+
+};
+
+exports.me = async (req, h) => {
+    let User = req.server.plugins.database.mongoose.model('User');
+    let foundUser;
+    try{
+        foundUser = await User.findOne({ _id: req.auth.credentials.id }, { password: false });
+    }catch(e){
+        return boom.unauthorized();
+    }
+    
+    return { statusCode: 200, data: { user: foundUser } };
 };
 
 exports.getToken = async (req, h) => {
@@ -51,7 +89,7 @@ exports.login = async (req, h) => {
     let User = req.server.plugins.database.mongoose.model('User');
 
     try{
-         var foundUser = await User.findOne({ email: req.payload.email }).exec();
+         var foundUser = await User.findOne({ email: req.payload.email });
     }catch(e){
         return boom.internal('Error consultando la base de datos');
     }
@@ -68,14 +106,15 @@ exports.login = async (req, h) => {
 
     let payload = {
         iss: 'http://delifood.com',
-        sub: foundUser.email,
+        sub: foundUser.id,
         scope: foundUser.role
     };
 
     let userToReturn = {
         name: foundUser.name,
         email: foundUser.email,
-        role: foundUser.role
+        role: foundUser.role,
+        id: foundUser.id
     };
 
     let token = await jwt.sign(payload, cfg.jwt.secret);

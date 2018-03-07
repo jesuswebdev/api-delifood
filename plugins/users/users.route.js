@@ -54,7 +54,10 @@ const usersRoute = {
             handler: UsersController.create,
             options: {
                 auth: {
-                    strategy: 'basicAuth'
+                    strategy: 'basicAuth',
+                    access: {
+                        scope: ['guest', 'admin']
+                    }
                 },
                 validate: {
                     payload: joi.object({
@@ -91,11 +94,49 @@ const usersRoute = {
             }
         });
 
+        //get user profile
+        server.route({
+            method: 'GET',
+            path: '/me',
+            handler: UsersController.me,
+            options: {
+                validate: {
+                    headers: joi.object({
+                        'authorization': joi.string().min(64).required()
+                    }).options({ allowUnknown: true })
+                },
+                auth: {
+                    access: {
+                        scope: ['user', 'admin']
+                    }
+                }
+            }
+        });
+
         //update user info
         server.route({
             method: 'PUT',
-            path: '/{userId}',
-            handler: ()=>{}
+            path: '/{id}',
+            handler: UsersController.update,
+            options: {
+                auth: {
+                    access: {
+                        scope: ['user', 'admin']
+                    }
+                },
+                validate: {
+                    headers: joi.object({
+                        'authorization': joi.string().min(64).required()
+                    }).options({ allowUnknown: true }),
+                    params: joi.object({
+                        id: joi.string().length(24).required()
+                    }),
+                    payload: joi.object({
+                        name: joi.string().min(6).required(),
+                        email: joi.string().email().required()
+                    })
+                }
+            }
         })
 
         //delete user
@@ -112,7 +153,10 @@ const usersRoute = {
             handler: UsersController.login,
             options: {
                 auth: {
-                    strategy: 'basicAuth'
+                    strategy: 'basicAuth',
+                    access: {
+                        scope: ['guest']
+                    }
                 },
                 validate: {
                     payload: joi.object({

@@ -21,7 +21,11 @@ module.exports = {
                         return boom.unauthorized('Token no válido');
                     }
 
-                    return h.authenticated({ credentials: {}});
+                    let credenciales = {
+                        scope: 'guest'
+                    };
+
+                    return h.authenticated({ credentials: credenciales });
                 }//authenticate
             };//return
         };//const userScheme
