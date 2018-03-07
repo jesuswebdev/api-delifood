@@ -126,14 +126,14 @@ const usersRoute = {
                 },
                 validate: {
                     headers: joi.object({
-                        'authorization': joi.string().min(64).required()
+                        'authorization': joi.string().min(64).required().trim()
                     }).options({ allowUnknown: true }),
                     params: joi.object({
-                        id: joi.string().length(24).required()
+                        id: joi.string().length(24).required().trim()
                     }),
                     payload: joi.object({
-                        name: joi.string().min(6).required(),
-                        email: joi.string().email().required()
+                        name: joi.string().regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s\.]+$/).min(6).required().trim(),
+                        email: joi.string().email().required().trim()
                     })
                 }
             }

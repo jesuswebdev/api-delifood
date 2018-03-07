@@ -5,17 +5,14 @@ const jwt = require('jsonwebtoken');
 
 exports.create = async (req, h) => {
 
-    let correoEnUso = await emailTaken(req);
-
-    if(correoEnUso){ return boom.conflict('Correo electrónico en uso'); }
-
     let User = req.server.plugins.database.mongoose.model('User');
 
     let newUser = new User(req.payload);
 
     try{
         var registeredUser = await newUser.save();
-    }catch(e){//manejar error 11000 correo en uso
+    }catch(error){//manejar error 11000 correo en uso
+        if(error.code == 11000){ return boom.conflict('Correo electrónico en uso'); }
         return boom.internal('Error al registrar el usuario');
     }
 
@@ -52,16 +49,18 @@ exports.findById = async (req, h) => {
 };
 
 exports.update = async (req, h) => {
+
     let User = req.server.plugins.database.mongoose.model('User');
 
     try{
-        var updated = await User.findByIdAndUpdate(req.params.id, req.payload).exec();
+        var updated = await User.findByIdAndUpdate(req.params.id, req.payload);
     }//manejar error 11000 correo en uso
-    catch(e){
-        return { error: e };
+    catch(error){
+        if(error.code == 11000){ return boom.conflict('Correo electrónico en uso'); }
+        return boom.internal('Ocurrió un error al intentar modificar los datos del usuario');
     }
     
-    return { updated: updated };
+    return { statusCode: 200, data: { user: updated } };
 };
 
 exports.delete = async (req, h) => {
@@ -121,17 +120,4 @@ exports.login = async (req, h) => {
 
     return { statusCode: 200, data: { user: userToReturn, token: token } };
 
-};
-
- async function emailTaken (req) {
-
-    let User = req.server.plugins.database.mongoose.model('User');
-
-    try{
-        var query = await User.findOne({ email: req.payload.email });
-    }catch(e){
-        return boom.internal();
-    }
-
-    return query || false;
 };
