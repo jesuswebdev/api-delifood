@@ -16,9 +16,7 @@ exports.create = async (req, h) => {
         return boom.internal('Error al registrar el usuario');
     }
 
-    let token = await jwt.sign(registeredUser.id, cfg.jwt.secret);
-
-    return { statusCode: 201, data: { user: registeredUser, token: token } };
+    return { statusCode: 201, data: { user: registeredUser } };
 
 };
 
@@ -32,15 +30,16 @@ exports.list = async (req, h) => {
         return boom.internal();
     }
 
-    return { statusCode: 200, data: { queryResult: query }};
+    return { statusCode: 200, data: { users: query }};
 };
 
 exports.findById = async (req, h) => {
+
     let User = req.server.plugins.database.mongoose.model('User');
     let foundUser = null;
 
     try{
-        foundUser = await User.findOne({ _id: req.params.id }, { password: false });
+        foundUser = await User.findById(req.params.id, { password: false });
     }catch(e){
         return boom.internal('Error consultando la base de datos');
     }
@@ -60,27 +59,39 @@ exports.update = async (req, h) => {
         return boom.internal('Ocurrió un error al intentar modificar los datos del usuario');
     }
     
-    return { statusCode: 200, data: { user: updated } };
+    return { statusCode: 200, data: {} };
 };
 
 exports.delete = async (req, h) => {
 
+    let User = req.server.plugins.database.mongoose.model('User');
+    let deleted;
+
+    try{
+        deleted = await User.findByIdAndRemove(req.params.id);
+    }catch(error){
+        return boom.internal();
+    }
+
+    if(!deleted){ return boom.notFound('El usuario no existe'); }
+
+    return { statusCode: 204, data: {} };
+
 };
 
 exports.me = async (req, h) => {
+
     let User = req.server.plugins.database.mongoose.model('User');
+
     let foundUser;
+
     try{
-        foundUser = await User.findOne({ _id: req.auth.credentials.id }, { password: false });
+        foundUser = await User.findById(req.auth.credentials.id, { password: false });
     }catch(e){
-        return boom.unauthorized();
+        return boom.internal();
     }
     
     return { statusCode: 200, data: { user: foundUser } };
-};
-
-exports.getToken = async (req, h) => {
-
 };
 
 exports.login = async (req, h) => {
@@ -94,13 +105,13 @@ exports.login = async (req, h) => {
     }
 
     if(!foundUser){
-        return boom.unauthorized('Combinacion de Usuario/Contraseña incorrectos');
+        return boom.badData('Combinacion de Usuario/Contraseña incorrectos');
     }
 
     let same = await foundUser.validatePassword(req.payload.password, foundUser.password);
     
     if(!same){
-        return boom.unauthorized('Combinacion de Usuario/Contraseña incorrectos');
+        return boom.badData('Combinacion de Usuario/Contraseña incorrectos');
     }
 
     let payload = {

@@ -1,32 +1,9 @@
 const UsersController = require('./users.controller');
 const joi = require('joi');
-const bcrypt= require('bcrypt');
 
-const usersRoute = {
+module.exports = {
     name: 'users-routes',
-    version: '1.0.0',
     register: async (server, options) => {
-
-        //hello
-        server.route({
-            method: 'GET',
-            path: '/hello',
-            handler: async (req, h) => {
-                let a = '$2a$10$cq1sq1YuL0OpvOs3dDaDK.1aMrB6.C75T7h5WrBpN9/afQYAuvSdu';
-                let n = 0;
-                try{
-                    n = await bcrypt.getRounds('adasdasdas');
-                }catch(e){
-                    n = -1;
-                }
-                
-                return { rondas: n };
-                //return { hola: 'mundo' };
-            },
-            options: {
-                auth: false
-            }
-        })
 
         //get all users
         server.route({
@@ -41,8 +18,10 @@ const usersRoute = {
                 },
                 validate: {
                     headers: joi.object({
-                        'authorization': joi.string().min(64).required()
-                    }).options({ allowUnknown: true })
+                        'authorization': joi.string().min(64).required().trim()
+                    }).options({ allowUnknown: true }),
+                    payload: false,
+                    query: false
                 }
             }
         });
@@ -61,13 +40,14 @@ const usersRoute = {
                 },
                 validate: {
                     payload: joi.object({
-                        name: joi.string().min(6).required(),
-                        email: joi.string().min(10).email().required(),
-                        password: joi.string().min(6).required()
+                        name: joi.string().min(6).required().trim(),
+                        email: joi.string().min(10).email().required().trim(),
+                        password: joi.string().min(6).required().trim()
                     }),
                     headers: joi.object({
-                        'authorization': joi.string().min(64).required()
-                    }).options({ allowUnknown: true })
+                        'authorization': joi.string().min(64).required().trim()
+                    }).options({ allowUnknown: true }),
+                    query: false
                 }
             }
         });
@@ -80,15 +60,17 @@ const usersRoute = {
             options: {
                 validate: {
                     params: joi.object({
-                        id: joi.string().length(24).required()
+                        id: joi.string().length(24).alphanum().required().trim()
                     }),
                     headers: joi.object({
-                        'authorization': joi.string().min(64).required()
-                    }).options({ allowUnknown: true })
+                        'authorization': joi.string().min(64).required().trim()
+                    }).options({ allowUnknown: true }),
+                    query: false,
+                    payload: false
                 },
                 auth: {
                     access: {
-                        scope: ['user', 'admin']
+                        scope: ['admin']
                     }
                 }
             }
@@ -102,8 +84,10 @@ const usersRoute = {
             options: {
                 validate: {
                     headers: joi.object({
-                        'authorization': joi.string().min(64).required()
-                    }).options({ allowUnknown: true })
+                        'authorization': joi.string().min(64).required().trim()
+                    }).options({ allowUnknown: true }),
+                    query: false,
+                    payload: false
                 },
                 auth: {
                     access: {
@@ -129,22 +113,40 @@ const usersRoute = {
                         'authorization': joi.string().min(64).required().trim()
                     }).options({ allowUnknown: true }),
                     params: joi.object({
-                        id: joi.string().length(24).required().trim()
+                        id: joi.string().length(24).alphanum().required().trim()
                     }),
                     payload: joi.object({
                         name: joi.string().regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s\.]+$/).min(6).required().trim(),
                         email: joi.string().email().required().trim()
-                    })
+                    }),
+                    query: false
                 }
             }
-        })
+        });
 
         //delete user
         server.route({
             method: 'DELETE',
-            path: '/{userId}',
-            handler: ()=>{}
-        })
+            path: '/{id}',
+            handler: UsersController.delete,
+            options: {
+                auth: {
+                    access: {
+                        scope: ['admin']
+                    }
+                },
+                validate: {
+                    headers: joi.object({
+                        'authorization': joi.string().min(64).required().trim()
+                    }).options({ allowUnknown: true }),
+                    params: joi.object({
+                        id: joi.string().length(24).alphanum().required().trim()
+                    }),
+                    query: false,
+                    payload: false
+                }
+            }
+        });
 
         //login user
         server.route({
@@ -160,17 +162,15 @@ const usersRoute = {
                 },
                 validate: {
                     payload: joi.object({
-                        email: joi.string().email().min(10).required(),
-                        password: joi.string().min(6).required()
+                        email: joi.string().email().min(10).required().trim(),
+                        password: joi.string().min(6).required().trim()
                     }),
                     headers: joi.object({
-                        'authorization': joi.string().min(64).required()
-                    }).options({ allowUnknown: true })
+                        'authorization': joi.string().min(64).required().trim()
+                    }).options({ allowUnknown: true }),
+                    query: false
                 }
             }
-        })
-
+        });
     }
 }
-
-module.exports = usersRoute;

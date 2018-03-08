@@ -20,11 +20,7 @@ async function start(){
         await server.register(require('./plugins/basic-auth/basic-auth.scheme'));
 
         //register routes
-        await server.register(require('./plugins/users/users.route'),{
-            routes: {
-                prefix: '/api/users'
-            }
-        });
+        await server.register(require('./plugins/users/users.route'),{ routes: { prefix: '/api/users' } });
         await server.start(); 
         
     }
