@@ -18,16 +18,16 @@ module.exports = {
                     try{
                         token = req.raw.req.headers.authorization.slice(7);
                     }catch(e){
-                        return boom.unauthorized('Token no válido')
+                        return boom.badRequest('Token no válido')
                     }
 
                     try{
                         var payload = jwt.verify(token, cfg.jwt.secret);
                     }
-                    catch(e){ return boom.unauthorized('Token no válido'); }
+                    catch(e){ return boom.badRequest('Token no válido'); }
                     
                     try{
-                        var authUser = await User.findOne({ _id: payload.sub });
+                        var authUser = await User.findById(payload.sub);
                     }  
                     catch(e){ return boom.internal(); }
 

@@ -13,6 +13,7 @@
   "dependencies": {
     "bcrypt": "^1.0.3",
     "hapi": "^17.2.1",
+    "inert": "^5.1.0",
     "jsonwebtoken": "^8.2.0",
     "mongoose": "^5.0.8"
   }
