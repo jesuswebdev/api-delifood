@@ -9,6 +9,7 @@ const path = require('path');
 const server = new Hapi.Server({
     port: 3000,
     host: 'localhost',
+    address: '0.0.0.0',
     app: {
         uploadsDir: path.join(__dirname, 'uploads')
     },
