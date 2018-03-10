@@ -5,6 +5,18 @@ module.exports = {
     name: 'users-routes',
     register: async (server, options) => {
 
+        //hello
+        server.route({
+            method: 'GET',
+            path: '/hello',
+            handler: async (req, h) => {
+                return 'Nos visitas desde la IP:' + req.info.remoteAddress;
+            },
+            options: {
+                auth: false
+            }
+        });
+
         //get all users
         server.route({
             method: 'GET',

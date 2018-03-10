@@ -3,10 +3,12 @@ module.exports = (mongoose) => {
         name: {
             type: String,
             trim: true,
-            required: true
+            required: true,
+            unique: true
         },
         description: {
-            type: String
+            type: String,
+            default: null
         },
         productsCount: {
             type: Number,
@@ -15,13 +17,16 @@ module.exports = (mongoose) => {
         },
         img: {
             path: {
-                type: String
+                type: String,
+                default: null
             },
             contentType: {
-                type: String
+                type: String,
+                default: null
             },
             bytes: {
-                type: Number
+                type: Number,
+                default: 0
             }
         }
     });

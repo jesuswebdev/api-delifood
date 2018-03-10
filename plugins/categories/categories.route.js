@@ -26,7 +26,8 @@ module.exports = {
                 },
                 validate: {
                     headers: joi.object({
-                        'authorization': joi.string().min(64).required().trim()
+                        'authorization': joi.string().min(64).required().trim(),
+                        'content-type': joi.string().allow('multipart/form-data')
                     }).options({ allowUnknown: true }),
                     payload: joi.object({
                         name: joi.string().min(4).regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,]+$/).required(),
@@ -39,6 +40,25 @@ module.exports = {
         });
 
         //mostrar todas las categorias
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: CategoriesController.list,
+            options: {
+                auth: {
+                    access: {
+                        scope: ['guest', 'user', 'admin']
+                    }
+                },
+                validate: {
+                    headers: joi.object({
+                        'authorization': joi.string().min(64).required().trim()
+                    }).options({ allowUnknown: true }),
+                    payload: false,
+                    query: false
+                }
+            }
+        });
 
         //buscar categoria por id
 
