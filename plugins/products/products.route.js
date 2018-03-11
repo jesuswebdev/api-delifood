@@ -76,7 +76,80 @@ module.exports = {
         });
 
         //update product info
+        server.route({
+            method: 'PUT',
+            path: '/{id}',
+            handler: ProductsController.update,
+            options: {
+                auth: {
+                    access: {
+                        scope: ['admin']
+                    }
+                },
+                validate: {
+                    params: joi.object({
+                        id: joi.string().alphanum().length(24).required().trim()
+                    }),
+                    payload: joi.object({
+                        name: joi.string().min(4).required().trim(),
+                        description: joi.string().min(8).required().trim(),
+                        price: joi.number().greater(0).precision(2).required(),
+                        category: joi.string().length(24).alphanum().required().trim()
+                    }),
+                    query: false
+                }
+            }
+        });
 
         //delete product
+        server.route({
+            method: 'DELETE',
+            path: '/{id}',
+            handler: ProductsController.delete,
+            options: {
+                auth: {
+                    access: {
+                        scope: ['admin']
+                    }
+                },
+                validate: {
+                    params: joi.object({
+                        id: joi.string().alphanum().length(24).required().trim()
+                    }),
+                    payload: false,
+                    query: false
+                }
+            }
+        });
+
+        //update product picture
+        server.route({
+            method: 'PUT',
+            path: '/{id}/picture',
+            handler: ProductsController.updatePicture,
+            options: {
+                auth: {
+                    access: {
+                        scope: ['admin']
+                    }
+                },
+                payload: {
+                    allow: 'multipart/form-data',
+                    maxBytes: 1048576,
+                    output: 'file',
+                    parse: true,
+                    uploads: server.settings.app.uploadsDir
+                },
+                validate: {
+                    params: joi.object({
+                        id: joi.string().alphanum().length(24).required().trim()
+                    }),
+                    payload: joi.object({
+                        picture: joi.any().required()
+                    }),
+                    query: false
+                }
+            }
+        });
     }
 }

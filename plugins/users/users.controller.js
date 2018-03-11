@@ -1,6 +1,6 @@
 const cfg = require('../../config/config');
 const boom = require('boom');
-const jwt = require('jsonwebtoken');
+const iron = require('iron');
 
 
 exports.create = async (req, h) => {
@@ -115,7 +115,8 @@ exports.login = async (req, h) => {
     }
 
     let payload = {
-        iss: 'http://delifood.com',
+        name: foundUser.name,
+        email: foundUser.email,
         sub: foundUser.id,
         scope: foundUser.role
     };
@@ -127,7 +128,7 @@ exports.login = async (req, h) => {
         id: foundUser.id
     };
 
-    let token = await jwt.sign(payload, cfg.jwt.secret);
+    let token = await iron.seal(payload, cfg.iron.password, iron.defaults);
 
     return { statusCode: 200, data: { user: userToReturn, token: token } };
 
@@ -135,12 +136,11 @@ exports.login = async (req, h) => {
 
 exports.hello = async (req, h) => {
     let payload = {
-        iss: 'http://delifood.com',
         sub: 'guest',
         scope: 'guest'
     };
 
-    let token = await jwt.sign(payload, cfg.jwt.secret);
+    let token = await iron.seal(payload, cfg.iron.password, iron.defaults);
 
-    return token
+    return token;
 }

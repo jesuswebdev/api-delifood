@@ -1,7 +1,7 @@
 'use strict'
 
 const boom = require('boom');
-const jwt = require('jsonwebtoken');
+const iron = require('iron');
 const cfg = require('../../config/config');
 
 module.exports = {
@@ -11,9 +11,8 @@ module.exports = {
         const userScheme = (server) => {
             return {
                 authenticate: async (req, h) => {
-
-                    let User = req.server.plugins.database.mongoose.model('User');
-                    let token = null, credenciales = null, payload = null, authUser = null;
+                    
+                    let token = null, credenciales = null, payload = null;
                 
                     if(!req.raw.req.headers.authorization){
                         return boom.unauthorized('No tienes autorización', ['Bearer']);
@@ -26,34 +25,23 @@ module.exports = {
                     }
 
                     try{
-                        payload = jwt.verify(token, cfg.jwt.secret);
+                        payload = await iron.unseal(token, cfg.iron.password, iron.defaults);
                     }
                     catch(e){ return boom.badRequest('Token no válido'); }
                     
                     if(payload.sub == 'guest'){
                         credenciales = {
-                            name: payload.sub,
+                            name: payload.name,
                             scope: payload.scope
                         };
                     }
                     else{
-                        try{
-                            authUser = await User.findById(payload.sub);
-
-                            credenciales = {
-                                name: authUser.name,
-                                email: authUser.email,
-                                scope: authUser.role,
-                                id: authUser.id
-                            };
-
-                        }catch(e){
-                            return boom.internal('Error consultando la base de datos');
-                        }
-                    }
-                    
-                    if(!authUser && payload.sub != 'guest'){
-                        return boom.unauthorized('No estás autorizado');
+                        credenciales = {
+                            name: payload.name,
+                            email: payload.email,
+                            scope: payload.scope,
+                            id: payload.sub
+                        };
                     }
 
                     return h.authenticated({ credentials: credenciales });

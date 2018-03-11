@@ -103,13 +103,67 @@ exports.findById = async (req, h) => {
 };
 
 exports.update = async (req, h) => {
-    return req.payload;
+    
+    let Product = req.server.plugins.database.mongoose.model('Product');
+    let updatedProduct = null;
+
+    try{
+        updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.payload);
+    }catch(error){
+        if(error.code == 11000){
+            return boom.conflict('Ya existe un producto con ese nombre');
+        }
+        return boom.internal('Error consultando la base de datos');
+    }
+    
+    return { statusCode: 200, data: updatedProduct.id };
 };
 
 exports.delete = async (req, h) => {
-    return req.payload;
+
+    let Product = req.server.plugins.database.mongoose.model('Product');
+    let deletedProduct = null;
+
+    try{
+        deletedProduct = await Product.findByIdAndRemove(req.params.id);
+    }catch(error){
+        return boom.internal('Error consultando la base de datos');
+    }
+
+    if(!deletedProduct){ return boom.notFound('El producto no existe'); }
+
+    await CategoryController.removeProduct(req, deletedProduct.category);
+
+    return { statusCode: 200, data: null };
 };
 
 exports.updatePicture = async (req, h) => {
+    
+    let Product = req.server.plugins.database.mongoose.model('Product');
+    let payload = req.payload;
+    
+    if(!payload.picture.path || !payload.picture.headers || !payload.picture.bytes){
+        return boom.badRequest('No hay imagen para procesar');
+    }
 
+    let picture = {
+        path: payload.picture.path,
+        contentType: payload.picture.headers['content-type'],
+        bytes: payload.picture.bytes
+    };
+    
+    delete payload.picture;
+    payload['picture'] = picture;
+    
+
+    let updatedProduct = null;
+
+    try{
+        updatedProduct = await Product.findByIdAndUpdate(req.params.id, payload)
+    }catch(error){
+        await fs.unlinkSync(payload.picture.path);
+        return boom.internal('Error consultando la base de datos');
+    }
+
+    return { statusCode: 200, data: null };
 };

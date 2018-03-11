@@ -53,12 +53,23 @@ exports.create = async (req, h) => {
 exports.list = async (req, h) => {
 
     let Category = req.server.plugins.database.mongoose.model('Category');
-    let categorias;
-    let findOptions = {
-        name: true,
-        description: true,
-        'img.path': true
-    };
+    let categorias = null, findOptions = null;
+    let scope = req.auth.credentials.scope;
+
+    if(scope == 'guest' || scope == 'user'){
+        findOptions = {
+            name: true,
+            description: true
+        };
+    }
+
+    if(scope == 'admin'){
+        findOptions = {
+            'img.bytes': false,
+            'img.contentType': false
+        };
+    }
+    
 
     try{
         categorias = await Category.find({}, findOptions);
