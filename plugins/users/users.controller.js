@@ -25,12 +25,12 @@ exports.list = async (req, h) => {
     let User = req.server.plugins.database.mongoose.model('User');
 
     try{
-        var query = await User.find().select('name email');
+        var users = await User.find({}, { name: true, email: true });
     }catch(e){
-        return boom.internal();
+        return boom.internal('Error consultando la base de datos');
     }
 
-    return { statusCode: 200, data: { users: query }};
+    return { statusCode: 200, data: users };
 };
 
 exports.findById = async (req, h) => {
@@ -44,7 +44,7 @@ exports.findById = async (req, h) => {
         return boom.internal('Error consultando la base de datos');
     }
 
-    return { statusCode: 200, data: { user: foundUser } };
+    return { statusCode: 200, data: foundUser };
 };
 
 exports.update = async (req, h) => {
@@ -52,14 +52,14 @@ exports.update = async (req, h) => {
     let User = req.server.plugins.database.mongoose.model('User');
 
     try{
-        var updated = await User.findByIdAndUpdate(req.params.id, req.payload);
+        await User.findByIdAndUpdate(req.params.id, req.payload);
     }//manejar error 11000 correo en uso
     catch(error){
         if(error.code == 11000){ return boom.conflict('Correo electrónico en uso'); }
         return boom.internal('Ocurrió un error al intentar modificar los datos del usuario');
     }
     
-    return { statusCode: 200, data: {} };
+    return { statusCode: 200, data: null };
 };
 
 exports.delete = async (req, h) => {
@@ -75,7 +75,7 @@ exports.delete = async (req, h) => {
 
     if(!deleted){ return boom.notFound('El usuario no existe'); }
 
-    return { statusCode: 204, data: {} };
+    return { statusCode: 204, data: null };
 
 };
 
@@ -88,10 +88,10 @@ exports.me = async (req, h) => {
     try{
         foundUser = await User.findById(req.auth.credentials.id, { password: false });
     }catch(e){
-        return boom.internal();
+        return boom.internal('Error consultando la base de datos');
     }
     
-    return { statusCode: 200, data: { user: foundUser } };
+    return { statusCode: 200, data: foundUser };
 };
 
 exports.login = async (req, h) => {
@@ -132,3 +132,15 @@ exports.login = async (req, h) => {
     return { statusCode: 200, data: { user: userToReturn, token: token } };
 
 };
+
+exports.hello = async (req, h) => {
+    let payload = {
+        iss: 'http://delifood.com',
+        sub: 'guest',
+        scope: 'guest'
+    };
+
+    let token = await jwt.sign(payload, cfg.jwt.secret);
+
+    return token
+}

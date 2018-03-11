@@ -13,7 +13,11 @@ module.exports = {
                 authenticate: async (req, h) => {
 
                     let User = req.server.plugins.database.mongoose.model('User');
-                    let token;
+                    let token = null, credenciales = null, payload = null, authUser = null;
+                
+                    if(!req.raw.req.headers.authorization){
+                        return boom.unauthorized('No tienes autorización', ['Bearer']);
+                    }
 
                     try{
                         token = req.raw.req.headers.authorization.slice(7);
@@ -22,24 +26,36 @@ module.exports = {
                     }
 
                     try{
-                        var payload = jwt.verify(token, cfg.jwt.secret);
+                        payload = jwt.verify(token, cfg.jwt.secret);
                     }
                     catch(e){ return boom.badRequest('Token no válido'); }
                     
-                    try{
-                        var authUser = await User.findById(payload.sub);
-                    }  
-                    catch(e){ return boom.internal(); }
+                    if(payload.sub == 'guest'){
+                        credenciales = {
+                            name: payload.sub,
+                            scope: payload.scope
+                        };
+                    }
+                    else{
+                        try{
+                            authUser = await User.findById(payload.sub);
 
-                    if(!authUser){ return boom.unauthorized(); }
+                            credenciales = {
+                                name: authUser.name,
+                                email: authUser.email,
+                                scope: authUser.role,
+                                id: authUser.id
+                            };
 
-                    let credenciales = {
-                        name: authUser.name,
-                        email: authUser.email,
-                        scope: authUser.role,
-                        id: authUser.id
-                    };
+                        }catch(e){
+                            return boom.internal('Error consultando la base de datos');
+                        }
+                    }
                     
+                    if(!authUser && payload.sub != 'guest'){
+                        return boom.unauthorized('No estás autorizado');
+                    }
+
                     return h.authenticated({ credentials: credenciales });
                 }//authenticate
             };//return

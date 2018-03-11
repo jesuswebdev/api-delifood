@@ -9,9 +9,7 @@ module.exports = {
         server.route({
             method: 'GET',
             path: '/hello',
-            handler: async (req, h) => {
-                return 'Nos visitas desde la IP:' + req.info.remoteAddress;
-            },
+            handler: UsersController.hello,
             options: {
                 auth: false
             }
@@ -29,9 +27,6 @@ module.exports = {
                     }
                 },
                 validate: {
-                    headers: joi.object({
-                        'authorization': joi.string().min(64).required().trim()
-                    }).options({ allowUnknown: true }),
                     payload: false,
                     query: false
                 }
@@ -45,7 +40,6 @@ module.exports = {
             handler: UsersController.create,
             options: {
                 auth: {
-                    strategy: 'basicAuth',
                     access: {
                         scope: ['guest', 'admin']
                     }
@@ -56,9 +50,6 @@ module.exports = {
                         email: joi.string().min(10).email().required().trim(),
                         password: joi.string().min(6).required().trim()
                     }),
-                    headers: joi.object({
-                        'authorization': joi.string().min(64).required().trim()
-                    }).options({ allowUnknown: true }),
                     query: false
                 }
             }
@@ -74,9 +65,6 @@ module.exports = {
                     params: joi.object({
                         id: joi.string().length(24).alphanum().required().trim()
                     }),
-                    headers: joi.object({
-                        'authorization': joi.string().min(64).required().trim()
-                    }).options({ allowUnknown: true }),
                     query: false,
                     payload: false
                 },
@@ -95,9 +83,6 @@ module.exports = {
             handler: UsersController.me,
             options: {
                 validate: {
-                    headers: joi.object({
-                        'authorization': joi.string().min(64).required().trim()
-                    }).options({ allowUnknown: true }),
                     query: false,
                     payload: false
                 },
@@ -121,9 +106,6 @@ module.exports = {
                     }
                 },
                 validate: {
-                    headers: joi.object({
-                        'authorization': joi.string().min(64).required().trim()
-                    }).options({ allowUnknown: true }),
                     params: joi.object({
                         id: joi.string().length(24).alphanum().required().trim()
                     }),
@@ -148,9 +130,6 @@ module.exports = {
                     }
                 },
                 validate: {
-                    headers: joi.object({
-                        'authorization': joi.string().min(64).required().trim()
-                    }).options({ allowUnknown: true }),
                     params: joi.object({
                         id: joi.string().length(24).alphanum().required().trim()
                     }),
@@ -167,7 +146,6 @@ module.exports = {
             handler: UsersController.login,
             options: {
                 auth: {
-                    strategy: 'basicAuth',
                     access: {
                         scope: ['guest']
                     }
@@ -177,9 +155,6 @@ module.exports = {
                         email: joi.string().email().min(10).required().trim(),
                         password: joi.string().min(6).required().trim()
                     }),
-                    headers: joi.object({
-                        'authorization': joi.string().min(64).required().trim()
-                    }).options({ allowUnknown: true }),
                     query: false
                 }
             }
