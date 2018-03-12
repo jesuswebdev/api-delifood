@@ -10,6 +10,7 @@ module.exports = {
         require('../plugins/users/user.model')(mongoose);
         require('../plugins/categories/category.model')(mongoose);
         require('../plugins/products/product.model')(mongoose);
+        require('../plugins/orders/order.model')(mongoose);
 
         server.expose('mongoose', mongoose);
     }

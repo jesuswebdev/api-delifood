@@ -6,17 +6,16 @@ const iron = require('iron');
 exports.create = async (req, h) => {
 
     let User = req.server.plugins.database.mongoose.model('User');
-
     let newUser = new User(req.payload);
 
     try{
-        var registeredUser = await newUser.save();
+        newUser = await newUser.save();
     }catch(error){//manejar error 11000 correo en uso
         if(error.code == 11000){ return boom.conflict('Correo electrónico en uso'); }
         return boom.internal('Error al registrar el usuario');
     }
 
-    return { statusCode: 201, data: { user: registeredUser } };
+    return { statusCode: 201, data: { user: newUser.id } };
 
 };
 

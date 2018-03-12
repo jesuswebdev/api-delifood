@@ -50,6 +50,7 @@ const init = async () => {
     await server.register(require('./plugins/users/users.route'),{ routes: { prefix: '/api/users' } });
     await server.register(require('./plugins/categories/categories.route'), { routes: { prefix: '/api/categories' } });
     await server.register(require('./plugins/products/products.route'), { routes: { prefix: '/api/products' } });
+    await server.register(require('./plugins/orders/orders.route'), { routes: { prefix: '/api/orders' } });
    
     //start server
     await server.start(); 
