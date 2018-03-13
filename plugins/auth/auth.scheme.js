@@ -13,13 +13,14 @@ module.exports = {
                 authenticate: async (req, h) => {
                     
                     let token = null, credenciales = null, payload = null;
+                    let auth = req.raw.req.headers.authorization || null;
                 
-                    if(!req.raw.req.headers.authorization){
+                    if(!auth){
                         return boom.unauthorized('No tienes autorización', ['Bearer']);
                     }
 
                     try{
-                        token = req.raw.req.headers.authorization.slice(7);
+                        token = auth.slice(7);
                     }catch(e){
                         return boom.badRequest('Token no válido')
                     }

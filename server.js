@@ -18,7 +18,8 @@ const server = new Hapi.Server({
     routes: {
         files: {
             relativeTo: path.join(__dirname, 'uploads')
-        }
+        },
+        cors: true
     },
     cache: [{
         name: 'mongoDbCache',
@@ -38,7 +39,6 @@ const init = async () => {
 
     //register authentication scheme
     await server.register(require('./plugins/auth/auth.scheme'));
-    //await server.register(require('./plugins/basic-auth/basic-auth.scheme'));
 
     //register routes
 
@@ -62,5 +62,11 @@ process.on('unhandledRejection', (err) => {
     console.log(err);
     process.exit(1);
 });
+
+server.events.on('response', function (request) {
+    console.log('-------------------------------');
+    console.log(request.info.remoteAddress + ': ' + request.method.toUpperCase() + ' ' + request.url.path + ' --> ' + request.response.statusCode);
+});
+
 
 init();
