@@ -1,7 +1,10 @@
+'use strict';
+
 const OrdersController = require('./orders.controller');
-const joi = require('joi');
+const Joi = require('joi');
 
 module.exports = {
+    
     name: 'orders-routes',
     register: async (server, options) => {
 
@@ -17,14 +20,14 @@ module.exports = {
                     }
                 },
                 validate: {
-                    payload: joi.object({
-                        products: joi.array().items(joi.object({
-                            product: joi.string().alphanum().length(24).required(),
-                            unitPrice: joi.number().positive().precision(2).required(),
-                            quantity: joi.number().positive().integer().min(1).required(),
-                            totalPrice: joi.number().positive().precision(2).required()
+                    payload: Joi.object({
+                        products: Joi.array().items(Joi.object({
+                            product: Joi.string().alphanum().length(24).required(),
+                            unitPrice: Joi.number().positive().precision(2).required(),
+                            quantity: Joi.number().positive().integer().min(1).required(),
+                            totalPrice: Joi.number().positive().precision(2).required()
                         })),
-                        totalPayment: joi.number().positive().precision(2).min(1).required()
+                        totalPayment: Joi.number().positive().precision(2).min(1).required()
                     }),
                     query: false
                 }
@@ -61,8 +64,8 @@ module.exports = {
                     }
                 },
                 validate: {
-                    params: joi.object({
-                        id: joi.string().alphanum().length(24).required().trim()
+                    params: Joi.object({
+                        id: Joi.string().alphanum().length(24).required().trim()
                     }),
                     payload: false,
                     query: false
@@ -82,7 +85,7 @@ module.exports = {
                     }
                 },
                 validate: {
-                    payload: joi.object(),
+                    payload: Joi.object(),
                     query: false
                 }
             }
@@ -100,7 +103,7 @@ module.exports = {
                     }
                 },
                 validate: {
-                    payload: joi.object(),
+                    payload: Joi.object(),
                     query: false
                 }
             }

@@ -1,12 +1,15 @@
+'use strict';
+
 const CategoryController = require('../categories/categories.controller');
-const boom = require('boom');
+const Boom = require('boom');
 const fs = require('fs');
 
 exports.create = async (req, h) => {
+
     let Product = req.server.plugins.database.mongoose.model('Product');
     let payload = req.payload;
 
-    if(payload.picture){
+    if (payload.picture) {
         let picture = {
             path: payload.picture.path,
             contentType: payload.picture.headers['content-type'],
@@ -19,20 +22,24 @@ exports.create = async (req, h) => {
 
     let newProduct = new Product(payload);
 
-    try{
+    try {
         newProduct = await newProduct.save();
-    }catch(error){
-        if(error.code == 11000){
-            if(payload.picture){ await fs.unlinkSync(newProduct.picture.path); }            
-            return boom.conflict('Ya existe un producto con ese nombre'); 
+    }
+    catch (error) {
+        if (error.code === 11000) {
+            if (payload.picture) {
+                await fs.unlinkSync(newProduct.picture.path);
             }
-        return boom.internal('Error consultando la base de datos');
+
+            return Boom.conflict('Ya existe un producto con ese nombre'); 
+        }
+
+        return Boom.internal('Error consultando la base de datos');
     }
 
     await CategoryController.addNewProduct(req, payload.category);
 
     return { statusCode: 201, data: newProduct.id };
-
 };
 
 exports.list = async (req, h) => {
@@ -42,7 +49,7 @@ exports.list = async (req, h) => {
     let scope = req.auth.credentials.scope;
     let foundProducts = null;
 
-    if(scope == 'guest' || scope == 'user'){
+    if (scope === 'guest' || scope === 'user') {
         findOptions = {
             name: true,
             description: true,
@@ -52,21 +59,21 @@ exports.list = async (req, h) => {
         };
     }
 
-    if(scope == 'admin'){
+    if(scope === 'admin'){
         findOptions = {
             ['picture.contentType']: false,
             ['picture.bytes']: false
         };
     }
 
-    try{
+    try {
         foundProducts = await Product.find({}, findOptions).populate('category', 'name');
-    }catch(error){
-        return boom.internal('Error consultando la base de datos');
+    }
+    catch (error) {
+        return Boom.internal('Error consultando la base de datos');
     }
 
     return { statusCode: 200, data: foundProducts };
-
 };
 
 exports.findById = async (req, h) => {
@@ -76,7 +83,7 @@ exports.findById = async (req, h) => {
     let scope = req.auth.credentials.scope;
     let foundProduct = null;
 
-    if(scope == 'guest' || scope == 'user'){
+    if (scope === 'guest' || scope === 'user') {
         findOptions = {
             name: true,
             description: true,
@@ -86,17 +93,18 @@ exports.findById = async (req, h) => {
         };
     }
 
-    if(scope == 'admin'){
+    if(scope === 'admin'){
         findOptions = {
             ['picture.contentType']: false,
             ['picture.bytes']: false
         };
     }
 
-    try{
+    try {
         foundProduct = await Product.findById(req.params.id, findOptions).populate('category', 'name');
-    }catch(error){
-        return boom.internal('Error consultando la base de datos');
+    }
+    catch (error) {
+        return Boom.internal('Error consultando la base de datos');
     }
 
     return { statusCode: 200, data: foundProduct };
@@ -107,13 +115,15 @@ exports.update = async (req, h) => {
     let Product = req.server.plugins.database.mongoose.model('Product');
     let updatedProduct = null;
 
-    try{
+    try {
         updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.payload);
-    }catch(error){
-        if(error.code == 11000){
-            return boom.conflict('Ya existe un producto con ese nombre');
+    }
+    catch (error) {
+        if (error.code == 11000) {
+            return Boom.conflict('Ya existe un producto con ese nombre');
         }
-        return boom.internal('Error consultando la base de datos');
+
+        return Boom.internal('Error consultando la base de datos');
     }
     
     return { statusCode: 200, data: updatedProduct.id };
@@ -124,13 +134,16 @@ exports.delete = async (req, h) => {
     let Product = req.server.plugins.database.mongoose.model('Product');
     let deletedProduct = null;
 
-    try{
+    try {
         deletedProduct = await Product.findByIdAndRemove(req.params.id);
-    }catch(error){
-        return boom.internal('Error consultando la base de datos');
+    }
+    catch (error) {
+        return Boom.internal('Error consultando la base de datos');
     }
 
-    if(!deletedProduct){ return boom.notFound('El producto no existe'); }
+    if (!deletedProduct) {
+        return Boom.notFound('El producto no existe');
+    }
 
     await CategoryController.removeProduct(req, deletedProduct.category);
 
@@ -142,8 +155,11 @@ exports.updatePicture = async (req, h) => {
     let Product = req.server.plugins.database.mongoose.model('Product');
     let payload = req.payload;
     
-    if(!payload.picture.path || !payload.picture.headers || !payload.picture.bytes){
-        return boom.badRequest('No hay imagen para procesar');
+    if (!payload.picture.path ||
+        !payload.picture.headers ||
+        !payload.picture.bytes) {
+
+        return Boom.badRequest('No hay imagen para procesar');
     }
 
     let picture = {
@@ -158,11 +174,13 @@ exports.updatePicture = async (req, h) => {
 
     let updatedProduct = null;
 
-    try{
+    try {
         updatedProduct = await Product.findByIdAndUpdate(req.params.id, payload)
-    }catch(error){
+    }
+    catch (error) {
         await fs.unlinkSync(payload.picture.path);
-        return boom.internal('Error consultando la base de datos');
+        
+        return Boom.internal('Error consultando la base de datos');
     }
 
     return { statusCode: 200, data: null };

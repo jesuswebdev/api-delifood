@@ -1,17 +1,20 @@
-var config = require('./config'),
-    mongoose = require('mongoose');
+'use strict';
+
+const Config = require('./config')
+const Mongoose = require('mongoose');
 
 module.exports = {
+
     name: 'database',
     register: async (server, options) => {
 
-        await mongoose.connect(config.db.uri);
+        await Mongoose.connect(Config.db.uri);
 
-        require('../plugins/users/user.model')(mongoose);
-        require('../plugins/categories/category.model')(mongoose);
-        require('../plugins/products/product.model')(mongoose);
-        require('../plugins/orders/order.model')(mongoose);
+        require('../plugins/users/user.model')(Mongoose);
+        require('../plugins/categories/category.model')(Mongoose);
+        require('../plugins/products/product.model')(Mongoose);
+        require('../plugins/orders/order.model')(Mongoose);
 
-        server.expose('mongoose', mongoose);
+        server.expose('mongoose', Mongoose);
     }
 };

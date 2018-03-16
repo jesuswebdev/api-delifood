@@ -1,8 +1,10 @@
-const path = require('path');
+'use strict';
 
 module.exports = {
+
     name: 'file-serve-route',
     register: async (server, options) => {
+
         server.route({
             method: 'GET',
             path: '/{file*}',

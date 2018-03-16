@@ -1,5 +1,9 @@
+'use strict';
+
 module.exports = (mongoose) => {
+    
     const ProductSchema = new mongoose.Schema({
+        
         name: {
             type: String,
             unique: true,

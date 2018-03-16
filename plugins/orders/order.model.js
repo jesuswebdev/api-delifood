@@ -1,6 +1,9 @@
+'use strict';
+
 module.exports = (mongoose) => {
 
     let productSubschema = new mongoose.Schema({
+        
         product: {
             type: mongoose.Schema.ObjectId,
             ref: 'Product'
@@ -11,6 +14,7 @@ module.exports = (mongoose) => {
     }, { _id: false });//_id false para que no cree un nuevo id cuando guarde
     
     let OrderSchema = new mongoose.Schema({
+
         user: {
             type: mongoose.Schema.ObjectId,
             ref: 'User'

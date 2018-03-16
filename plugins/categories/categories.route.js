@@ -1,8 +1,10 @@
+'use strict';
+
 const CategoriesController = require('./categories.controller');
-const joi = require('joi');
-const path = require('path');
+const Joi = require('joi');
 
 module.exports = {
+    
     name: 'categories-routes',
     register: async (server, options) => {
         
@@ -25,10 +27,10 @@ module.exports = {
                     uploads: server.settings.app.uploadsDir
                 },
                 validate: {
-                    payload: joi.object({
-                        name: joi.string().min(4).regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,]+$/).required(),
-                        description: joi.string().min(8).regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,]+$/).optional(),
-                        img: joi.optional()
+                    payload: Joi.object({
+                        name: Joi.string().min(4).regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,]+$/).required(),
+                        description: Joi.string().min(8).regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,]+$/).optional(),
+                        img: Joi.optional()
                     }),
                     query: false
                 }
@@ -65,8 +67,8 @@ module.exports = {
                     }
                 },
                 validate: {
-                    params: joi.object({
-                        id: joi.string().length(24).alphanum().required().trim()
+                    params: Joi.object({
+                        id: Joi.string().length(24).alphanum().required().trim()
                     }),
                     query: false,
                     payload: false
@@ -86,12 +88,12 @@ module.exports = {
                     }
                 },
                 validate: {
-                    params: joi.object({
-                        id: joi.string().alphanum().length(24).required().trim()
+                    params: Joi.object({
+                        id: Joi.string().alphanum().length(24).required().trim()
                     }),
-                    payload: joi.object({
-                        name: joi.string().min(4).required().trim(),
-                        description: joi.string().min(4).optional().trim()
+                    payload: Joi.object({
+                        name: Joi.string().min(4).required().trim(),
+                        description: Joi.string().min(4).optional().trim()
                     }),
                     query: false
                 }
@@ -110,8 +112,8 @@ module.exports = {
                     }
                 },
                 validate: {
-                    params: joi.object({
-                        id: joi.string().alphanum().length(24).required().trim()
+                    params: Joi.object({
+                        id: Joi.string().alphanum().length(24).required().trim()
                     }),
                     payload: false,
                     query: false
@@ -138,11 +140,11 @@ module.exports = {
                     uploads: server.settings.app.uploadsDir
                 },
                 validate: {
-                    params: joi.object({
-                        id: joi.string().alphanum().length(24).required().trim()
+                    params: Joi.object({
+                        id: Joi.string().alphanum().length(24).required().trim()
                     }),
-                    payload: joi.object({
-                        img: joi.required()
+                    payload: Joi.object({
+                        img: Joi.required()
                     }),
                     query: false
                 }

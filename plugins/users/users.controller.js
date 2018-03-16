@@ -1,6 +1,8 @@
-const cfg = require('../../config/config');
-const boom = require('boom');
-const iron = require('iron');
+'use strict';
+
+const Cfg = require('../../config/config');
+const Boom = require('boom');
+const Iron = require('iron');
 
 
 exports.create = async (req, h) => {
@@ -8,11 +10,15 @@ exports.create = async (req, h) => {
     let User = req.server.plugins.database.mongoose.model('User');
     let newUser = new User(req.payload);
 
-    try{
+    try {
         newUser = await newUser.save();
-    }catch(error){//manejar error 11000 correo en uso
-        if(error.code == 11000){ return boom.conflict('Correo electrónico en uso'); }
-        return boom.internal('Error al registrar el usuario');
+    }
+    catch (error) {//manejar error 11000 correo en uso
+        if (error.code == 11000) {
+            return Boom.conflict('Correo electrónico en uso');
+        }
+
+        return Boom.internal('Error al registrar el usuario');
     }
 
     return { statusCode: 201, data: { user: newUser.id } };
@@ -22,11 +28,13 @@ exports.create = async (req, h) => {
 exports.list = async (req, h) => {
 
     let User = req.server.plugins.database.mongoose.model('User');
+    let users = [];
 
-    try{
-        var users = await User.find({}, { name: true, email: true });
-    }catch(e){
-        return boom.internal('Error consultando la base de datos');
+    try {
+        users = await User.find({}, { name: true, email: true });
+    }
+    catch (error) {
+        return Boom.internal('Error consultando la base de datos');
     }
 
     return { statusCode: 200, data: users };
@@ -37,10 +45,11 @@ exports.findById = async (req, h) => {
     let User = req.server.plugins.database.mongoose.model('User');
     let foundUser = null;
 
-    try{
+    try {
         foundUser = await User.findById(req.params.id, { password: false });
-    }catch(e){
-        return boom.internal('Error consultando la base de datos');
+    }
+    catch (error) {
+        return Boom.internal('Error consultando la base de datos');
     }
 
     return { statusCode: 200, data: foundUser };
@@ -50,12 +59,15 @@ exports.update = async (req, h) => {
 
     let User = req.server.plugins.database.mongoose.model('User');
 
-    try{
+    try {
         await User.findByIdAndUpdate(req.params.id, req.payload);
     }//manejar error 11000 correo en uso
-    catch(error){
-        if(error.code == 11000){ return boom.conflict('Correo electrónico en uso'); }
-        return boom.internal('Ocurrió un error al intentar modificar los datos del usuario');
+    catch (error) {
+        if (error.code == 11000) {
+            return Boom.conflict('Correo electrónico en uso');
+        }
+
+        return Boom.internal('Ocurrió un error al intentar modificar los datos del usuario');
     }
     
     return { statusCode: 200, data: null };
@@ -66,28 +78,30 @@ exports.delete = async (req, h) => {
     let User = req.server.plugins.database.mongoose.model('User');
     let deleted;
 
-    try{
+    try {
         deleted = await User.findByIdAndRemove(req.params.id);
-    }catch(error){
-        return boom.internal();
+    }
+    catch (error) {
+        return Boom.internal();
     }
 
-    if(!deleted){ return boom.notFound('El usuario no existe'); }
+    if (!deleted) {
+        return Boom.notFound('El usuario no existe');
+    }
 
     return { statusCode: 204, data: null };
-
 };
 
 exports.me = async (req, h) => {
 
     let User = req.server.plugins.database.mongoose.model('User');
-
     let foundUser;
 
-    try{
+    try {
         foundUser = await User.findById(req.auth.credentials.id, { password: false });
-    }catch(e){
-        return boom.internal('Error consultando la base de datos');
+    }
+    catch (error) {
+        return Boom.internal('Error consultando la base de datos');
     }
     
     return { statusCode: 200, data: foundUser };
@@ -96,21 +110,23 @@ exports.me = async (req, h) => {
 exports.login = async (req, h) => {
 
     let User = req.server.plugins.database.mongoose.model('User');
+    let foundUser = null;
 
-    try{
-         var foundUser = await User.findOne({ email: req.payload.email });
-    }catch(e){
-        return boom.internal('Error consultando la base de datos');
+    try {
+        foundUser = await User.findOne({ email: req.payload.email });
+    }
+    catch (error) {
+        return Boom.internal('Error consultando la base de datos');
     }
 
-    if(!foundUser){
-        return boom.badData('Combinacion de Usuario/Contraseña incorrectos');
+    if (!foundUser) {
+        return Boom.badData('Combinacion de Usuario/Contraseña incorrectos');
     }
 
     let same = await foundUser.validatePassword(req.payload.password, foundUser.password);
     
-    if(!same){
-        return boom.badData('Combinacion de Usuario/Contraseña incorrectos');
+    if (!same) {
+        return Boom.badData('Combinacion de Usuario/Contraseña incorrectos');
     }
 
     let payload = {
@@ -127,19 +143,19 @@ exports.login = async (req, h) => {
         id: foundUser.id
     };
 
-    let token = await iron.seal(payload, cfg.iron.password, iron.defaults);
+    let token = await Iron.seal(payload, Cfg.iron.password, Iron.defaults);
 
     return { statusCode: 200, data: { user: userToReturn, token: token } };
-
 };
 
 exports.hello = async (req, h) => {
+
     let payload = {
         sub: 'guest',
         scope: 'guest'
     };
 
-    let token = await iron.seal(payload, cfg.iron.password, iron.defaults);
+    let token = await Iron.seal(payload, Cfg.iron.password, Iron.defaults);
 
     return token;
 }

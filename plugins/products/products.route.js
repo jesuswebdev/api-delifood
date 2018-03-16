@@ -1,7 +1,10 @@
+'use strict';
+
 const ProductsController = require('./products.controller');
-const joi = require('joi');
+const Joi = require('joi');
 
 module.exports = {
+    
     name: 'products-routes',
     register: async (server, options) => {
 
@@ -24,12 +27,12 @@ module.exports = {
                     uploads: server.settings.app.uploadsDir
                 },
                 validate: {
-                    payload: joi.object({
-                        name: joi.string().min(4).required().trim(),
-                        description: joi.string().min(8).optional().trim(),
-                        category: joi.string().length(24).alphanum().required().trim(),
-                        price: joi.number().positive().precision(2).required(),
-                        picture: joi.any().optional()
+                    payload: Joi.object({
+                        name: Joi.string().min(4).required().trim(),
+                        description: Joi.string().min(8).optional().trim(),
+                        category: Joi.string().length(24).alphanum().required().trim(),
+                        price: Joi.number().positive().precision(2).required(),
+                        picture: Joi.any().optional()
                     }),
                     query: false
                 }
@@ -66,8 +69,8 @@ module.exports = {
                     }
                 },
                 validate: {
-                    params: joi.object({
-                        id: joi.string().alphanum().length(24).required().trim()
+                    params: Joi.object({
+                        id: Joi.string().alphanum().length(24).required().trim()
                     }),
                     payload: false,
                     query: false
@@ -87,14 +90,14 @@ module.exports = {
                     }
                 },
                 validate: {
-                    params: joi.object({
-                        id: joi.string().alphanum().length(24).required().trim()
+                    params: Joi.object({
+                        id: Joi.string().alphanum().length(24).required().trim()
                     }),
-                    payload: joi.object({
-                        name: joi.string().min(4).required().trim(),
-                        description: joi.string().min(8).required().trim(),
-                        price: joi.number().greater(0).precision(2).required(),
-                        category: joi.string().length(24).alphanum().required().trim()
+                    payload: Joi.object({
+                        name: Joi.string().min(4).required().trim(),
+                        description: Joi.string().min(8).required().trim(),
+                        price: Joi.number().greater(0).precision(2).required(),
+                        category: Joi.string().length(24).alphanum().required().trim()
                     }),
                     query: false
                 }
@@ -113,8 +116,8 @@ module.exports = {
                     }
                 },
                 validate: {
-                    params: joi.object({
-                        id: joi.string().alphanum().length(24).required().trim()
+                    params: Joi.object({
+                        id: Joi.string().alphanum().length(24).required().trim()
                     }),
                     payload: false,
                     query: false
@@ -141,11 +144,11 @@ module.exports = {
                     uploads: server.settings.app.uploadsDir
                 },
                 validate: {
-                    params: joi.object({
-                        id: joi.string().alphanum().length(24).required().trim()
+                    params: Joi.object({
+                        id: Joi.string().alphanum().length(24).required().trim()
                     }),
-                    payload: joi.object({
-                        picture: joi.any().required()
+                    payload: Joi.object({
+                        picture: Joi.any().required()
                     }),
                     query: false
                 }

@@ -1,9 +1,12 @@
-const bcrypt = require('bcrypt');
+'use strict';
+
+const Bcrypt = require('bcrypt');
 const saltFactor = 10;
 
 module.exports = (mongoose) => {
 
     const UserSchema = new mongoose.Schema({
+
         banned: {
             type: Boolean,
             default: false
@@ -38,20 +41,25 @@ module.exports = (mongoose) => {
     });
     
     UserSchema.pre('save', async function(){
+        
         await this.hashPassword(this);
     });
     
     UserSchema.methods.hashPassword = async (user) => {
-        try{
-            user.password = await bcrypt.hash(user.password, saltFactor);
+        
+        try {
+            
+            user.password = await Bcrypt.hash(user.password, saltFactor);
         }
-        catch(e){
-            return e;
+        catch (error) {
+            
+            return error;
         }
     };
 
     UserSchema.methods.validatePassword = async (loginAttemptPassword, userPassword) => {
-        return await bcrypt.compare(loginAttemptPassword, userPassword);
+        
+        return await Bcrypt.compare(loginAttemptPassword, userPassword);
     }
     
     UserSchema.set('toJSON',{
@@ -60,5 +68,4 @@ module.exports = (mongoose) => {
     });
     
     mongoose.model('User', UserSchema);
-
 };//module.exports

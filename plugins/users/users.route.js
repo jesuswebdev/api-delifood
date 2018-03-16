@@ -1,7 +1,10 @@
+'use strict';
+
 const UsersController = require('./users.controller');
-const joi = require('joi');
+const Joi = require('joi');
 
 module.exports = {
+
     name: 'users-routes',
     register: async (server, options) => {
 
@@ -45,10 +48,10 @@ module.exports = {
                     }
                 },
                 validate: {
-                    payload: joi.object({
-                        name: joi.string().min(6).required().trim(),
-                        email: joi.string().min(10).email().required().trim(),
-                        password: joi.string().min(6).required().trim()
+                    payload: Joi.object({
+                        name: Joi.string().min(6).required().trim(),
+                        email: Joi.string().min(10).email().required().trim(),
+                        password: Joi.string().min(6).required().trim()
                     }),
                     query: false
                 }
@@ -62,8 +65,8 @@ module.exports = {
             handler: UsersController.findById,
             options: {
                 validate: {
-                    params: joi.object({
-                        id: joi.string().length(24).alphanum().required().trim()
+                    params: Joi.object({
+                        id: Joi.string().length(24).alphanum().required().trim()
                     }),
                     query: false,
                     payload: false
@@ -106,12 +109,12 @@ module.exports = {
                     }
                 },
                 validate: {
-                    params: joi.object({
-                        id: joi.string().length(24).alphanum().required().trim()
+                    params: Joi.object({
+                        id: Joi.string().length(24).alphanum().required().trim()
                     }),
-                    payload: joi.object({
-                        name: joi.string().regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s\.]+$/).min(6).required().trim(),
-                        email: joi.string().email().required().trim()
+                    payload: Joi.object({
+                        name: Joi.string().regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s\.]+$/).min(6).required().trim(),
+                        email: Joi.string().email().required().trim()
                     }),
                     query: false
                 }
@@ -130,8 +133,8 @@ module.exports = {
                     }
                 },
                 validate: {
-                    params: joi.object({
-                        id: joi.string().length(24).alphanum().required().trim()
+                    params: Joi.object({
+                        id: Joi.string().length(24).alphanum().required().trim()
                     }),
                     query: false,
                     payload: false
@@ -151,9 +154,9 @@ module.exports = {
                     }
                 },
                 validate: {
-                    payload: joi.object({
-                        email: joi.string().email().min(10).required().trim(),
-                        password: joi.string().min(6).required().trim()
+                    payload: Joi.object({
+                        email: Joi.string().email().min(10).required().trim(),
+                        password: Joi.string().min(6).required().trim()
                     }),
                     query: false
                 }

@@ -4,35 +4,36 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 const Hapi = require('hapi');
 const CatboxMongoDB = require('catbox-mongodb');
-const inert = require('inert');
-const path = require('path');
-const cfg = require('./config/config');
+const Inert = require('inert');
+const Path = require('path');
+const Cfg = require('./config/config');
 
 const server = new Hapi.Server({
     port: 3000,
     host: 'localhost',
     address: '0.0.0.0',
     app: {
-        uploadsDir: path.join(__dirname, 'uploads')
+        uploadsDir: Path.join(__dirname, 'uploads')
     },
     routes: {
         files: {
-            relativeTo: path.join(__dirname, 'uploads')
+            relativeTo: Path.join(__dirname, 'uploads')
         },
         cors: true
     },
     cache: [{
         name: 'mongoDbCache',
         engine: CatboxMongoDB,
-        uri: cfg.db.uri,
+        uri: Cfg.db.uri,
         partition: 'cache'
     }]
 });
 
 // Start the server
 const init = async () => {
+
     //register inert
-    await server.register(inert);
+    await server.register(Inert);
     
     //register db
     await server.register(require('./config/mongoose'));
@@ -47,7 +48,7 @@ const init = async () => {
     await server.register(require('./plugins/auth/auth.route'), { routes: { prefix: '/api/auth' }});
 
     //resource routes
-    await server.register(require('./plugins/users/users.route'),{ routes: { prefix: '/api/users' } });
+    await server.register(require('./plugins/users/users.route'), { routes: { prefix: '/api/users' } });
     await server.register(require('./plugins/categories/categories.route'), { routes: { prefix: '/api/categories' } });
     await server.register(require('./plugins/products/products.route'), { routes: { prefix: '/api/products' } });
     await server.register(require('./plugins/orders/orders.route'), { routes: { prefix: '/api/orders' } });
@@ -59,11 +60,13 @@ const init = async () => {
 };
 
 process.on('unhandledRejection', (err) => {
+
     console.log(err);
     process.exit(1);
 });
 
 server.events.on('response', function (request) {
+    
     console.log('-------------------------------');
     console.log(request.info.remoteAddress + ': ' + request.method.toUpperCase() + ' ' + request.url.path + ' --> ' + request.response.statusCode);
 });
