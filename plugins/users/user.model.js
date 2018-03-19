@@ -39,7 +39,7 @@ module.exports = (mongoose) => {
             default: 'user'
         }
     });
-    
+        
     UserSchema.pre('save', async function(){
         
         await this.hashPassword(this);
@@ -48,15 +48,13 @@ module.exports = (mongoose) => {
     UserSchema.methods.hashPassword = async (user) => {
         
         try {
-            
             user.password = await Bcrypt.hash(user.password, saltFactor);
         }
         catch (error) {
-            
             return error;
         }
     };
-
+    
     UserSchema.methods.validatePassword = async (loginAttemptPassword, userPassword) => {
         
         return await Bcrypt.compare(loginAttemptPassword, userPassword);
@@ -66,6 +64,6 @@ module.exports = (mongoose) => {
         getters: true,
         virtuals: true
     });
-    
-    mongoose.model('User', UserSchema);
-};//module.exports
+
+    return mongoose.model('User', UserSchema);
+};

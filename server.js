@@ -19,7 +19,7 @@ const server = new Hapi.Server({
         files: {
             relativeTo: Path.join(__dirname, 'uploads')
         },
-        cors: true
+        cors: true, 
     },
     cache: [{
         name: 'mongoDbCache',
@@ -33,30 +33,77 @@ const server = new Hapi.Server({
 const init = async () => {
 
     //register inert
-    await server.register(Inert);
-    
+    await server.register({
+        plugin: Inert
+    });
+
     //register db
-    await server.register(require('./config/mongoose'));
-
+    await server.register({
+        plugin: require('./config/mongoose')
+    });
+    
     //register authentication scheme
-    await server.register(require('./plugins/auth/auth.scheme'));
-
+    await server.register({
+        plugin: require('./plugins/auth/auth.scheme')
+    });
+    
     //register routes
 
     //utility routes
-    await server.register(require('./plugins/file-serve/file-serve.router'), { routes: { prefix: '/api/uploads' } });
-    await server.register(require('./plugins/auth/auth.route'), { routes: { prefix: '/api/auth' }});
+    await server.register({
+        plugin: require('./plugins/file-serve/file-serve.router'),
+        routes: {
+            prefix: '/api/uploads'
+        }
+    });
+
+    await server.register({
+        plugin: require('./plugins/auth/auth.route'),
+        routes: {
+            prefix: '/api/auth'
+        }
+    });
 
     //resource routes
-    await server.register(require('./plugins/users/users.route'), { routes: { prefix: '/api/users' } });
-    await server.register(require('./plugins/categories/categories.route'), { routes: { prefix: '/api/categories' } });
-    await server.register(require('./plugins/products/products.route'), { routes: { prefix: '/api/products' } });
-    await server.register(require('./plugins/orders/orders.route'), { routes: { prefix: '/api/orders' } });
-   
+    await server.register({
+        plugin: require('./plugins/users/users.route'),
+        routes: {
+            prefix: '/api/users'
+        }
+    });
+
+    await server.register({
+        plugin: require('./plugins/products/products.route'),
+        routes: {
+            prefix: '/api/products'
+        }
+    });
+
+    await server.register({
+       plugin: require('./plugins/categories/categories.route'),
+       routes: {
+           prefix: '/api/categories'
+       } 
+    });
+
+    await server.register({
+        plugin: require('./plugins/orders/orders.route'),
+        routes: {
+            prefix: '/api/orders'
+        }
+    });
+    
+    await server.register({
+        plugin: require('./plugins/test/test.route'),
+        routes: {
+            prefix: '/test'
+        }
+    });
+
     //start server
     await server.start(); 
       
-    console.log('Server running at:', server.info.uri);
+    console.log(`Server running at: ${server.info.uri}`);
 };
 
 process.on('unhandledRejection', (err) => {
@@ -66,10 +113,10 @@ process.on('unhandledRejection', (err) => {
 });
 
 server.events.on('response', function (request) {
-    
-    console.log('-------------------------------');
-    console.log(request.info.remoteAddress + ': ' + request.method.toUpperCase() + ' ' + request.url.path + ' --> ' + request.response.statusCode);
+
+    console.log(`${request.info.remoteAddress}: ${request.method.toUpperCase()} ${request.url.path} --> ${request.response.statusCode}`);
 });
 
-
 init();
+
+module.exports = server;

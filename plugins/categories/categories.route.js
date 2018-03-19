@@ -1,6 +1,6 @@
 'use strict';
 
-const CategoriesController = require('./categories.controller');
+const { create, list, findById, update, remove, updatePic } = require('./categories.controller');
 const Joi = require('joi');
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
         server.route({
             method: 'POST',
             path: '/',
-            handler: CategoriesController.create,
+            handler: create,
             options: {
                 auth: {
                     access: {
@@ -41,7 +41,7 @@ module.exports = {
         server.route({
             method: 'GET',
             path: '/',
-            handler: CategoriesController.list,
+            handler: list,
             options: {
                 auth: {
                     access: {
@@ -59,7 +59,7 @@ module.exports = {
         server.route({
             method: 'GET',
             path: '/{id}',
-            handler: CategoriesController.findById,
+            handler: findById,
             options: {
                 auth: {
                     access: {
@@ -80,7 +80,7 @@ module.exports = {
         server.route({
             method: 'PUT',
             path: '/{id}',
-            handler: CategoriesController.update,
+            handler: update,
             options: {
                 auth: {
                     access: {
@@ -104,7 +104,7 @@ module.exports = {
         server.route({
             method: 'DELETE',
             path: '/{id}',
-            handler: CategoriesController.delete,
+            handler: remove,
             options: {
                 auth: {
                     access: {
@@ -125,7 +125,7 @@ module.exports = {
         server.route({
             method: 'PUT',
             path: '/{id}/picture',
-            handler: CategoriesController.updatePic,
+            handler: updatePic,
             options: {
                 auth: {
                     access: {

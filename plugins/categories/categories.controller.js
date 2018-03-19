@@ -39,7 +39,7 @@ exports.create = async (req, h) => {
     }
 
     //y luego guardamos en la base de datos
-    let Category = req.server.plugins.database.mongoose.model('Category');
+    let Category = req.server.plugins.db.CategoryModel;
     let newCategory = new Category(req.payload);
 
     try {
@@ -58,7 +58,7 @@ exports.create = async (req, h) => {
 
 exports.list = async (req, h) => {
 
-    let Category = req.server.plugins.database.mongoose.model('Category');
+    let Category = req.server.plugins.db.CategoryModel;
     let categorias = null, findOptions = null;
     let scope = req.auth.credentials.scope;
 
@@ -88,7 +88,7 @@ exports.list = async (req, h) => {
 
 exports.findById = async (req, h) => {
 
-    let Category = req.server.plugins.database.mongoose.model('Category');
+    let Category = req.server.plugins.db.CategoryModel;
     let foundCategory = null, findOptions = null;
     let scope = req.auth.credentials.scope;
 
@@ -121,7 +121,7 @@ exports.findById = async (req, h) => {
 
 exports.update = async (req, h) => {
 
-    let Category = req.server.plugins.database.mongoose.model('Category');
+    let Category = req.server.plugins.db.CategoryModel;
 
     try {
         await Category.findByIdAndUpdate(req.params.id, req.payload);
@@ -137,9 +137,9 @@ exports.update = async (req, h) => {
     return { statusCode: 200, data: null };
 };
 
-exports.delete = async (req, h) => {
+exports.remove = async (req, h) => {
 
-    let Category = req.server.plugins.database.mongoose.model('Category');
+    let Category = req.server.plugins.db.CategoryModel;
     let deleted;
     try {
         deleted = await Category.findByIdAndRemove(req.params.id);
@@ -159,7 +159,7 @@ exports.delete = async (req, h) => {
 
 exports.updatePic = async (req, h) => {
 
-    let Category = req.server.plugins.database.mongoose.model('Category');
+    let Category = req.server.plugins.db.CategoryModel;
     let categoria;
 
     try {
@@ -199,7 +199,7 @@ exports.updatePic = async (req, h) => {
 
 exports.addNewProduct = async (req, categoryId) => {
     
-    let Category = req.server.plugins.database.mongoose.model('Category');
+    let Category = req.server.plugins.db.CategoryModel;
 
     try {
         await Category.findByIdAndUpdate(categoryId, { $inc: { productsCount: 1 } });
@@ -211,7 +211,7 @@ exports.addNewProduct = async (req, categoryId) => {
 
 exports.removeProduct = async (req, categoryId) => {
     
-    let Category = req.server.plugins.database.mongoose.model('Category');
+    let Category = req.server.plugins.db.CategoryModel;
 
     try {
         await Category.findByIdAndUpdate(categoryId, { $inc: { productsCount: -1 } });

@@ -4,7 +4,7 @@
   "description": "api para delifood",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "lab --assert code --leaks --coverage -v",
     "start": "node server.js"
   },
   "author": "jd",
@@ -18,5 +18,9 @@
     "inert": "^5.1.0",
     "iron": "^5.0.4",
     "mongoose": "^5.0.8"
+  },
+  "devDependencies": {
+    "code": "^5.2.0",
+    "lab": "^15.4.0"
   }
 }

@@ -1,28 +1,28 @@
 'use strict';
 
-const UsersController = require('./users.controller');
+const { hello, create, list, findById, update, remove, login, me } = require('./users.controller');
 const Joi = require('joi');
 
 module.exports = {
-
+    
     name: 'users-routes',
     register: async (server, options) => {
-
+        
         //hello
         server.route({
             method: 'GET',
             path: '/hello',
-            handler: UsersController.hello,
+            handler: hello,
             options: {
                 auth: false
             }
         });
-
+        
         //get all users
         server.route({
             method: 'GET',
             path: '/',
-            handler: UsersController.list,
+            handler: list,
             options: {
                 auth: {
                     access: {
@@ -35,12 +35,12 @@ module.exports = {
                 }
             }
         });
-
+        
         //create new user
         server.route({
             method: 'POST',
             path: '/',
-            handler: UsersController.create,
+            handler: create,
             options: {
                 auth: {
                     access: {
@@ -57,12 +57,12 @@ module.exports = {
                 }
             }
         });
-
+        
         //get user by id
         server.route({
             method: 'GET',
             path: '/{id}',
-            handler: UsersController.findById,
+            handler: findById,
             options: {
                 validate: {
                     params: Joi.object({
@@ -78,12 +78,12 @@ module.exports = {
                 }
             }
         });
-
+        
         //get user profile
         server.route({
             method: 'GET',
             path: '/me',
-            handler: UsersController.me,
+            handler: me,
             options: {
                 validate: {
                     query: false,
@@ -96,12 +96,12 @@ module.exports = {
                 }
             }
         });
-
+        
         //update user info
         server.route({
             method: 'PUT',
             path: '/{id}',
-            handler: UsersController.update,
+            handler: update,
             options: {
                 auth: {
                     access: {
@@ -120,12 +120,12 @@ module.exports = {
                 }
             }
         });
-
+        
         //delete user
         server.route({
             method: 'DELETE',
             path: '/{id}',
-            handler: UsersController.delete,
+            handler: remove,
             options: {
                 auth: {
                     access: {
@@ -146,7 +146,7 @@ module.exports = {
         server.route({
             method: 'POST',
             path: '/login',
-            handler: UsersController.login,
+            handler: login,
             options: {
                 auth: {
                     access: {
@@ -163,4 +163,4 @@ module.exports = {
             }
         });
     }
-}
+} 

@@ -40,5 +40,5 @@ module.exports = (mongoose) => {
         virtuals: true
     });
 
-    mongoose.model('Category', CategorySchema);
+    return mongoose.model('Category', CategorySchema);
 };

@@ -1,6 +1,6 @@
 'use strict';
 
-const OrdersController = require('./orders.controller');
+const { create, list, findById } = require('./orders.controller');
 const Joi = require('joi');
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
         server.route({
             method: 'POST',
             path: '/',
-            handler: OrdersController.create,
+            handler: create,
             options: {
                 auth: {
                     access: {
@@ -38,7 +38,7 @@ module.exports = {
         server.route({
             method: 'GET',
             path: '/',
-            handler: OrdersController.list,
+            handler: list,
             options: {
                 auth: {
                     access: {
@@ -56,7 +56,7 @@ module.exports = {
         server.route({
             method: 'GET',
             path: '/{id}',
-            handler: OrdersController.findById,
+            handler: findById,
             options: {
                 auth: {
                     access: {

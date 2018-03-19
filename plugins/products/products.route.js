@@ -1,6 +1,6 @@
 'use strict';
 
-const ProductsController = require('./products.controller');
+const { create, list, findById, update, updatePicture, remove } = require('./products.controller');
 const Joi = require('joi');
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
         server.route({
             method: 'POST',
             path: '/',
-            handler: ProductsController.create,
+            handler: create,
             options: {
                 auth: {
                     access: {
@@ -43,7 +43,7 @@ module.exports = {
         server.route({
             method: 'GET',
             path: '/',
-            handler: ProductsController.list,
+            handler: list,
             options: {
                 auth: {
                     access: {
@@ -61,7 +61,7 @@ module.exports = {
         server.route({
             method: 'GET',
             path: '/{id}',
-            handler: ProductsController.findById,
+            handler: findById,
             options: {
                 auth: {
                     access: {
@@ -82,7 +82,7 @@ module.exports = {
         server.route({
             method: 'PUT',
             path: '/{id}',
-            handler: ProductsController.update,
+            handler: update,
             options: {
                 auth: {
                     access: {
@@ -108,7 +108,7 @@ module.exports = {
         server.route({
             method: 'DELETE',
             path: '/{id}',
-            handler: ProductsController.delete,
+            handler: remove,
             options: {
                 auth: {
                     access: {
@@ -129,7 +129,7 @@ module.exports = {
         server.route({
             method: 'PUT',
             path: '/{id}/picture',
-            handler: ProductsController.updatePicture,
+            handler: updatePicture,
             options: {
                 auth: {
                     access: {

@@ -4,7 +4,7 @@ const Boom = require('boom');
 
 exports.create = async (req, h) => {
 
-    let Order = req.server.plugins.database.mongoose.model('Order');
+    let Order = req.server.plugins.db.OrderModel;
     let newOrder = new Order(req.payload);
 
     newOrder.user = req.auth.credentials.id;
@@ -21,8 +21,9 @@ exports.create = async (req, h) => {
 
 exports.list = async (req, h) => {
     
-    let Order = req.server.plugins.database.mongoose.model('Order');
-    let foundOrders = null, findOptions = {};
+    let Order = req.server.plugins.db.OrderModel;
+    let foundOrders = null;
+    let findOptions = {};
     let scope = req.auth.credentials.scope;
 
     if (scope === 'user') {
@@ -32,7 +33,9 @@ exports.list = async (req, h) => {
     }
 
     try {
-        foundOrders = await Order.find(findOptions).populate('user', 'name').populate('products.product', 'name');
+        foundOrders = await Order.find(findOptions)
+                                 .populate('user', 'name')
+                                 .populate('products.product', 'name');
     }
     catch (error) {
         return Boom.internal('Error consultando la base de datos');
@@ -43,11 +46,13 @@ exports.list = async (req, h) => {
 
 exports.findById = async (req, h) => {
     
-    let Order = req.server.plugins.database.mongoose.model('Order');
+    let Order = req.server.plugins.db.OrderModel;
     let foundOrder = null;
 
     try {
-        foundOrder = await Order.findById(req.params.id).populate('user', 'name').populate('products.product','name');
+        foundOrder = await Order.findById(req.params.id)
+                                .populate('user', 'name')
+                                .populate('products.product','name');
     }
     catch (error) {
         return Boom.internal('Error consultando la base de datos');
@@ -66,6 +71,6 @@ exports.update = async (req, h) => {
     return req.payload;
 };
 
-exports.delete = async (req, h) => {
+exports.remove = async (req, h) => {
     return req.payload;
 };

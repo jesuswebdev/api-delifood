@@ -4,10 +4,9 @@ const Cfg = require('../../config/config');
 const Boom = require('boom');
 const Iron = require('iron');
 
-
 exports.create = async (req, h) => {
 
-    let User = req.server.plugins.database.mongoose.model('User');
+    let User = req.server.plugins.db.UserModel;
     let newUser = new User(req.payload);
 
     try {
@@ -22,12 +21,11 @@ exports.create = async (req, h) => {
     }
 
     return { statusCode: 201, data: { user: newUser.id } };
-
 };
 
 exports.list = async (req, h) => {
 
-    let User = req.server.plugins.database.mongoose.model('User');
+    let User = req.server.plugins.db.UserModel;
     let users = [];
 
     try {
@@ -42,7 +40,7 @@ exports.list = async (req, h) => {
 
 exports.findById = async (req, h) => {
 
-    let User = req.server.plugins.database.mongoose.model('User');
+    let User = req.server.plugins.db.UserModel;
     let foundUser = null;
 
     try {
@@ -57,7 +55,7 @@ exports.findById = async (req, h) => {
 
 exports.update = async (req, h) => {
 
-    let User = req.server.plugins.database.mongoose.model('User');
+    let User = req.server.plugins.db.UserModel;
 
     try {
         await User.findByIdAndUpdate(req.params.id, req.payload);
@@ -73,9 +71,9 @@ exports.update = async (req, h) => {
     return { statusCode: 200, data: null };
 };
 
-exports.delete = async (req, h) => {
+exports.remove = async (req, h) => {
 
-    let User = req.server.plugins.database.mongoose.model('User');
+    let User = req.server.plugins.db.UserModel;
     let deleted;
 
     try {
@@ -94,7 +92,7 @@ exports.delete = async (req, h) => {
 
 exports.me = async (req, h) => {
 
-    let User = req.server.plugins.database.mongoose.model('User');
+    let User = req.server.plugins.db.UserModel;
     let foundUser;
 
     try {
@@ -109,7 +107,7 @@ exports.me = async (req, h) => {
 
 exports.login = async (req, h) => {
 
-    let User = req.server.plugins.database.mongoose.model('User');
+    let User = req.server.plugins.db.UserModel;
     let foundUser = null;
 
     try {

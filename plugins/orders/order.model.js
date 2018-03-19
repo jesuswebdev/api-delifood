@@ -42,5 +42,5 @@ module.exports = (mongoose) => {
         virtuals: true
     });
 
-    mongoose.model('Order', OrderSchema);
+    return mongoose.model('Order', OrderSchema);
 };

@@ -1,12 +1,12 @@
 'use strict';
 
-const CategoryController = require('../categories/categories.controller');
+const { addNewProduct, removeProduct } = require('../categories/categories.controller');
 const Boom = require('boom');
 const fs = require('fs');
 
 exports.create = async (req, h) => {
 
-    let Product = req.server.plugins.database.mongoose.model('Product');
+    let Product = req.server.plugins.db.ProductModel;
     let payload = req.payload;
 
     if (payload.picture) {
@@ -37,14 +37,14 @@ exports.create = async (req, h) => {
         return Boom.internal('Error consultando la base de datos');
     }
 
-    await CategoryController.addNewProduct(req, payload.category);
+    await addNewProduct(req, payload.category);
 
     return { statusCode: 201, data: newProduct.id };
 };
 
 exports.list = async (req, h) => {
     
-    let Product = req.server.plugins.database.mongoose.model('Product');
+    let Product = req.server.plugins.db.ProductModel;
     let findOptions = null;
     let scope = req.auth.credentials.scope;
     let foundProducts = null;
@@ -78,7 +78,7 @@ exports.list = async (req, h) => {
 
 exports.findById = async (req, h) => {
 
-    let Product = req.server.plugins.database.mongoose.model('Product');
+    let Product = req.server.plugins.db.ProductModel;
     let findOptions = null;
     let scope = req.auth.credentials.scope;
     let foundProduct = null;
@@ -112,7 +112,7 @@ exports.findById = async (req, h) => {
 
 exports.update = async (req, h) => {
     
-    let Product = req.server.plugins.database.mongoose.model('Product');
+    let Product = req.server.plugins.db.ProductModel;
     let updatedProduct = null;
 
     try {
@@ -129,9 +129,9 @@ exports.update = async (req, h) => {
     return { statusCode: 200, data: updatedProduct.id };
 };
 
-exports.delete = async (req, h) => {
+exports.remove = async (req, h) => {
 
-    let Product = req.server.plugins.database.mongoose.model('Product');
+    let Product = req.server.plugins.db.ProductModel;
     let deletedProduct = null;
 
     try {
@@ -145,14 +145,14 @@ exports.delete = async (req, h) => {
         return Boom.notFound('El producto no existe');
     }
 
-    await CategoryController.removeProduct(req, deletedProduct.category);
+    await removeProduct(req, deletedProduct.category);
 
     return { statusCode: 200, data: null };
 };
 
 exports.updatePicture = async (req, h) => {
     
-    let Product = req.server.plugins.database.mongoose.model('Product');
+    let Product = req.server.plugins.db.ProductModel;
     let payload = req.payload;
     
     if (!payload.picture.path ||
