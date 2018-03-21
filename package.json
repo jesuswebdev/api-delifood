@@ -4,7 +4,7 @@
   "description": "api para delifood",
   "main": "server.js",
   "scripts": {
-    "test": "lab --assert code --leaks --coverage -v",
+    "test": "lab --assert code --leaks -v",
     "start": "node server.js"
   },
   "author": "jd",
