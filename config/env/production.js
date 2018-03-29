@@ -1,9 +1,13 @@
 'use strict';
 
 exports.db = {
-    uri: 'MongoDB Production URI'
+    uri: 'mongodb://ds012678.mlab.com:12678/delifood',
+    auth: {
+        user: 'jesuswebdev',
+        pass: 'J3d4r.7331'
+    }
 }
 
 exports.iron = {
-    password: 'iron Production Password'
+    password: 'iron Production Password, this should be a string of random characters'
 }

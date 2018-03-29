@@ -9,7 +9,7 @@ const Path = require('path');
 const Cfg = require('./config/config');
 
 const server = new Hapi.Server({
-    port: 3000,
+    port: process.env.PORT || 3000,
     host: 'localhost',
     address: '0.0.0.0',
     app: {
@@ -97,6 +97,17 @@ const init = async () => {
         plugin: require('./plugins/test/test.route'),
         routes: {
             prefix: '/test'
+        }
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/health',
+        options: {
+            auth: false
+        },
+        handler: async (req, h) => {
+            return { status: 'ok' };
         }
     });
 
