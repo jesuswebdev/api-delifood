@@ -53,14 +53,14 @@ const init = async () => {
     await server.register({
         plugin: require('./plugins/file-serve/file-serve.router'),
         routes: {
-            prefix: '/api/uploads'
+            prefix: '/uploads'
         }
     });
 
     await server.register({
         plugin: require('./plugins/auth/auth.route'),
         routes: {
-            prefix: '/api/auth'
+            prefix: '/auth'
         }
     });
 
@@ -68,28 +68,28 @@ const init = async () => {
     await server.register({
         plugin: require('./plugins/users/users.route'),
         routes: {
-            prefix: '/api/users'
+            prefix: '/users'
         }
     });
 
     await server.register({
         plugin: require('./plugins/products/products.route'),
         routes: {
-            prefix: '/api/products'
+            prefix: '/products'
         }
     });
 
     await server.register({
        plugin: require('./plugins/categories/categories.route'),
        routes: {
-           prefix: '/api/categories'
+           prefix: '/categories'
        } 
     });
 
     await server.register({
         plugin: require('./plugins/orders/orders.route'),
         routes: {
-            prefix: '/api/orders'
+            prefix: '/orders'
         }
     });
     
@@ -102,7 +102,7 @@ const init = async () => {
 
     server.route({
         method: 'GET',
-        path: '/health',
+        path: '/info',
         options: {
             auth: false
         },
