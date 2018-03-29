@@ -107,7 +107,7 @@ const init = async () => {
             auth: false
         },
         handler: async (req, h) => {
-            return { status: 'ok' };
+            return { status: 'ok', environment: process.env.NODE_ENV };
         }
     });
 
