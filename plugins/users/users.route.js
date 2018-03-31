@@ -1,6 +1,6 @@
 'use strict';
 
-const { hello, create, list, findById, update, remove, login, me } = require('./users.controller');
+const { hello, create, list, findById, update, remove, login, me, getUsersCount } = require('./users.controller');
 const Joi = require('joi');
 
 module.exports = {
@@ -158,6 +158,24 @@ module.exports = {
                         email: Joi.string().email().min(10).required().trim(),
                         password: Joi.string().min(6).required().trim()
                     }),
+                    query: false
+                }
+            }
+        });
+
+        //get users count
+        server.route({
+            method: 'GET',
+            path: '/count',
+            handler: getUsersCount,
+            options: {
+                auth: {
+                    access: {
+                        scope: ['admin']
+                    }
+                },
+                validate: {
+                    payload: false,
                     query: false
                 }
             }
