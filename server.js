@@ -107,7 +107,7 @@ const init = async () => {
             auth: false
         },
         handler: async (req, h) => {
-            return { status: 'ok', environment: process.env.NODE_ENV };
+            return { status: 'up', environment: process.env.NODE_ENV, server: 'node.js', framework: 'hapi.js', database: 'mongodb' };
         }
     });
 
