@@ -127,6 +127,10 @@ exports.login = async (req, h) => {
         return Boom.badData('Combinacion de Usuario/Contraseña incorrectos');
     }
 
+    if (foundUser.banned === true) {
+        return Boom.forbidden('Tu cuenta se encuentra suspendida');
+    }
+
     let payload = {
         name: foundUser.name,
         email: foundUser.email,
@@ -156,4 +160,19 @@ exports.hello = async (req, h) => {
     let token = await Iron.seal(payload, Cfg.iron.password, Iron.defaults);
 
     return token;
+}
+
+exports.getUsersCount = async (req, h) => {
+
+    let Users = req.server.plugins.db.UserModel;
+    let usersCount = 0;
+
+    try {
+        usersCount = await Users.count();
+    }
+    catch (error) {
+        return Boom.internal('Error consultando la base de datos');
+    }
+
+    return { statusCode: 200, data: { users: usersCount } };
 }
