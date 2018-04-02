@@ -107,7 +107,14 @@ const init = async () => {
             auth: false
         },
         handler: async (req, h) => {
-            return { author: 'jesuswebdev@gmail.com', status: 'up', environment: process.env.NODE_ENV, server: 'node.js', framework: 'hapi.js', database: 'mongodb' };
+            return { 
+                author: 'jesuswebdev@gmail.com',
+                status: 'up',
+                environment: process.env.NODE_ENV,
+                server: 'node.js',
+                framework: 'hapi.js',
+                database: 'mongodb'
+            };
         }
     });
 

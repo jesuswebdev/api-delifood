@@ -20,7 +20,7 @@ exports.create = async (req, h) => {
         return Boom.internal('Error al registrar el usuario');
     }
 
-    return { statusCode: 201, data: { user: newUser.id } };
+    return { statusCode: 200, data: newUser.id };
 };
 
 exports.list = async (req, h) => {
@@ -29,7 +29,7 @@ exports.list = async (req, h) => {
     let users = [];
 
     try {
-        users = await User.find({}, { name: true, email: true });
+        users = await User.find({}, { name: true, email: true, banned: true, created: true, role: true });
     }
     catch (error) {
         return Boom.internal('Error consultando la base de datos');
@@ -87,7 +87,7 @@ exports.remove = async (req, h) => {
         return Boom.notFound('El usuario no existe');
     }
 
-    return { statusCode: 204, data: null };
+    return { statusCode: 200, data: null };
 };
 
 exports.me = async (req, h) => {
@@ -174,5 +174,5 @@ exports.getUsersCount = async (req, h) => {
         return Boom.internal('Error consultando la base de datos');
     }
 
-    return { statusCode: 200, data: { users: usersCount } };
+    return { statusCode: 200, data: usersCount };
 }

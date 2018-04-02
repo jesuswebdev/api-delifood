@@ -37,6 +37,10 @@ module.exports = (mongoose) => {
             required: true,
             enum: ['admin', 'user', 'owner'],
             default: 'user'
+        },
+        created: {
+            type: Date,
+            default: Date.now()
         }
     });
         

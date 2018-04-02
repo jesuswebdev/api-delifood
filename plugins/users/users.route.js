@@ -51,7 +51,8 @@ module.exports = {
                     payload: Joi.object({
                         name: Joi.string().min(6).required().trim(),
                         email: Joi.string().min(10).email().required().trim(),
-                        password: Joi.string().min(6).required().trim()
+                        password: Joi.string().min(6).required().trim(),
+                        role: Joi.string().allow(['admin', 'user']).trim().optional()
                     }),
                     query: false
                 }
@@ -114,7 +115,10 @@ module.exports = {
                     }),
                     payload: Joi.object({
                         name: Joi.string().regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s\.]+$/).min(6).required().trim(),
-                        email: Joi.string().email().required().trim()
+                        email: Joi.string().email().required().trim(),
+                        id: Joi.string().alphanum().length(24).required().trim(),
+                        role: Joi.string().allow(['user', 'admin']).required().trim(),
+                        banned: Joi.boolean().required()
                     }),
                     query: false
                 }
