@@ -36,7 +36,7 @@ module.exports = {
                     catch (error) {
                         return Boom.badRequest('Token no válido'); 
                     }
-                    console.log(payload);
+                    
                     if (payload.sub === 'guest') {
                         credenciales = {
                             name: payload.name,
@@ -52,17 +52,17 @@ module.exports = {
                             if (!foundUser) {
                                 return Boom.notFound('Error de autenticación. El usuario no existe');
                             }
+
+                            credenciales = {
+                                name: foundUser.name,
+                                email: foundUser.email,
+                                scope: foundUser.role,
+                                id: foundUser.id
+                            };
                         }
                         catch (error) {
                             return Boom.internal('Error consultando la base de datos');
                         }
-                        
-                        credenciales = {
-                            name: payload.name,
-                            email: payload.email,
-                            scope: payload.scope,
-                            id: payload.sub
-                        };
                     }
 
                     return h.authenticated({ credentials: credenciales });

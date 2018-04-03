@@ -91,6 +91,10 @@ exports.update = async (req, h) => {
 
     let Category = req.server.plugins.db.CategoryModel;
 
+    if (req.payload.img) {
+        req.payload.img = req.payload.img.path;
+    }
+
     try {
         await Category.findByIdAndUpdate(req.params.id, req.payload);
     }
