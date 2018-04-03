@@ -20,18 +20,7 @@ module.exports = (mongoose) => {
             min: 0
         },
         img: {
-            path: {
-                type: String,
-                default: null
-            },
-            contentType: {
-                type: String,
-                default: null
-            },
-            bytes: {
-                type: Number,
-                default: 0
-            }
+            type: String
         }
     });
 

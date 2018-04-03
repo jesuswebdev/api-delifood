@@ -6,39 +6,10 @@ const path = require('path');
 
 exports.create = async (req, h) => {
 
-    //si hay imagen
     if (req.payload.img) {
-        //se crea una nueva ruta en la carpeta uploads con el id del usuario
-        let userUploadsDir = path.join(req.server.settings.app.uploadsDir, req.auth.credentials.id);
-
-        //verifica si el directorio existe
-        let dirExists = await fs.existsSync(userUploadsDir);
-
-        //si no existe lo crea
-        if(!dirExists){ await fs.mkdirSync(userUploadsDir); }
-
-        //extraemos el nombre de la imagen subida
-        var imgPath = await path.basename(req.payload.img.path);
-
-        //creamos un path nuevo para la imagen con el directorio del usuario y el nombre de la imagen
-        imgPath = path.join(userUploadsDir, imgPath);
-
-        //movemos la imagen del directorio uploads al directorio del usuario
-        await fs.copyFileSync(req.payload.img.path, imgPath);
-
-        //eliminamos la imagen del directorio uploads
-        await fs.unlinkSync(req.payload.img.path);
-
-        let img = {
-            path: imgPath,
-            contentType: req.payload.img.headers['content-type'],
-            bytes: req.payload.img.bytes
-        };
-        delete req.payload.img;
-        req.payload['img'] = img;
+        req.payload.img = req.payload.img.path;
     }
 
-    //y luego guardamos en la base de datos
     let Category = req.server.plugins.db.CategoryModel;
     let newCategory = new Category(req.payload);
 
@@ -70,10 +41,7 @@ exports.list = async (req, h) => {
     }
 
     if(scope === 'admin'){
-        findOptions = {
-            'img.bytes': false,
-            'img.contentType': false
-        };
+        findOptions = { };
     }
     
     try {
@@ -152,7 +120,12 @@ exports.remove = async (req, h) => {
         return Boom.notFound('La categoria no existe');
     }
 
-    await fs.unlinkSync(deleted.img.path);
+    try {
+        await fs.unlinkSync(deleted.img);
+    }
+    catch (error) {
+        return Boom.internal('Ocurrió un error al intentar eliminar la categoria');
+    }
 
     return { statusCode: 200, data: null };
 };
