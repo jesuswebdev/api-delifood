@@ -32,7 +32,7 @@ module.exports = {
                         description: Joi.string().min(8).optional().trim(),
                         category: Joi.string().length(24).alphanum().required().trim(),
                         price: Joi.number().positive().precision(2).required(),
-                        picture: Joi.any().optional()
+                        img: Joi.any().optional()
                     }),
                     query: false
                 }

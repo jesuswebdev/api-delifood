@@ -9,15 +9,8 @@ exports.create = async (req, h) => {
     let Product = req.server.plugins.db.ProductModel;
     let payload = req.payload;
 
-    if (payload.picture) {
-        let picture = {
-            path: payload.picture.path,
-            contentType: payload.picture.headers['content-type'],
-            bytes: payload.picture.bytes
-        };
-
-        delete payload.picture;
-        payload['picture'] = picture;
+    if (payload.img) {
+        payload.img = payload.img.path;
     }
 
     let newProduct = new Product(payload);
@@ -28,7 +21,7 @@ exports.create = async (req, h) => {
     catch (error) {
         if (error.code === 11000) {
             if (payload.picture) {
-                await fs.unlinkSync(newProduct.picture.path);
+                await fs.unlinkSync(newProduct.img.path);
             }
 
             return Boom.conflict('Ya existe un producto con ese nombre'); 
@@ -55,15 +48,12 @@ exports.list = async (req, h) => {
             description: true,
             category: true,
             price: true,
-            ['picture.path']: true
+            img: true
         };
     }
 
     if(scope === 'admin'){
-        findOptions = {
-            ['picture.contentType']: false,
-            ['picture.bytes']: false
-        };
+        findOptions = { };
     }
 
     try {
@@ -89,15 +79,12 @@ exports.findById = async (req, h) => {
             description: true,
             category: true,
             price: true,
-            ['picture.path']: true
+            img: true
         };
     }
 
     if(scope === 'admin'){
-        findOptions = {
-            ['picture.contentType']: false,
-            ['picture.bytes']: false
-        };
+        findOptions = {};
     }
 
     try {

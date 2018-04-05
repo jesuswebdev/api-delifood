@@ -28,8 +28,8 @@ module.exports = {
                 },
                 validate: {
                     payload: Joi.object({
-                        name: Joi.string().min(4).regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,]+$/).required(),
-                        description: Joi.string().min(8).regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,]+$/).optional(),
+                        name: Joi.string().min(4).regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s\.,]+$/).required(),
+                        description: Joi.string().min(8).regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s\.,]+$/).optional(),
                         img: Joi.optional()
                     }),
                     query: false

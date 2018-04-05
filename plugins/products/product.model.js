@@ -37,16 +37,8 @@ module.exports = (mongoose) => {
             type: Date,
             default: Date.now()
         },
-        picture: {
-            path: {
-                type: String
-            },
-            contentType: {
-                type: String
-            },
-            bytes: {
-                type: Number
-            }
+        img: {
+            type: String
         }
     });
 
