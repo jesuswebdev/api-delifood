@@ -12,6 +12,10 @@ module.exports = (mongoose) => {
         description: {
             type: String
         },
+        slug: {
+            type: String,
+            unique: true
+        },
         category: {
             type: mongoose.Schema.ObjectId,
             ref: 'Category',
@@ -46,6 +50,16 @@ module.exports = (mongoose) => {
         getters: true,
         virtuals: true
     });
+
+    ProductSchema.pre('save', async function() {
+        
+        this.slug = createSlug(this.name);
+    });
+
+    const createSlug = (string) => {
+
+        return string.toLowerCase().replace(/\s/gi, '-');
+    };
 
     return mongoose.model('Product', ProductSchema);
 };

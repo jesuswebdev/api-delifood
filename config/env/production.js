@@ -11,3 +11,7 @@ exports.db = {
 exports.iron = {
     password: 'iron Production Password, this should be a string of random characters'
 }
+
+exports.server = {
+    uri: 'https://api-delifood.herokuapp.com'
+}

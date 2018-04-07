@@ -9,10 +9,14 @@ module.exports = {
             method: 'GET',
             path: '/{file*}',
             handler: (req, h) => {
+                
                 return h.file(req.params.file);
             },
             options: {
-                auth: false
+                auth: false,
+                files: {
+                    relativeTo: server.settings.app.uploadsDir
+                }
             }
         });
     }

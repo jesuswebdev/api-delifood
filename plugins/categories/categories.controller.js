@@ -2,19 +2,20 @@
 
 const Boom = require('boom');
 const fs = require('fs');
-const path = require('path');
+const Path = require('path');
 
 exports.create = async (req, h) => {
 
     if (req.payload.img) {
-        req.payload.img = req.payload.img.path;
+        req.payload.img = req.server.settings.app.serverUploadsPath + Path.basename(req.payload.img.path);
     }
 
     let Category = req.server.plugins.db.CategoryModel;
     let newCategory = new Category(req.payload);
+    let createdCategory = null;
 
     try {
-        var createdCategory = await newCategory.save();
+        createdCategory = await newCategory.save();
     }
     catch (error) {
         if (error.code == 11000) {
@@ -90,20 +91,34 @@ exports.findById = async (req, h) => {
 exports.update = async (req, h) => {
 
     let Category = req.server.plugins.db.CategoryModel;
+    let oldImg = '';
 
     if (req.payload.img) {
-        req.payload.img = req.payload.img.path;
+        req.payload.img = req.server.settings.app.serverUploadsPath + Path.basename(req.payload.img.path);
     }
 
     try {
+        if (req.payload.img) {
+            oldImg = await Category.findById(req.params.id);
+            oldImg = oldImg.img || null;
+        }
         await Category.findByIdAndUpdate(req.params.id, req.payload);
     }
     catch (error) {
         if (error.code == 11000) {
+            if (req.payload.img) {
+                let img = Path.join(req.server.settings.app.uploadsDir, Path.basename(req.payload.img));
+                await fs.unlinkSync(img);
+            }
             return Boom.conflict('Ya existe una categoria con ese nombre');
         }
 
         return Boom.internal('Error consultando la base de datos');
+    }
+
+    if (oldImg) {
+        let img = Path.join(req.server.settings.app.uploadsDir, Path.basename(oldImg));
+        await fs.unlinkSync(img);
     }
 
     return { statusCode: 200, data: null };
@@ -112,7 +127,8 @@ exports.update = async (req, h) => {
 exports.remove = async (req, h) => {
 
     let Category = req.server.plugins.db.CategoryModel;
-    let deleted;
+    let deleted = null;
+
     try {
         deleted = await Category.findByIdAndRemove(req.params.id);
     }
@@ -124,11 +140,14 @@ exports.remove = async (req, h) => {
         return Boom.notFound('La categoria no existe');
     }
 
-    try {
-        await fs.unlinkSync(deleted.img);
-    }
-    catch (error) {
-        return Boom.internal('Ocurrió un error al intentar eliminar la categoria');
+    if (deleted.img) {
+        try {
+            let img = Path.join(req.server.settings.app.uploadsDir, Path.basename(deleted.img));
+            await fs.unlinkSync(img);
+        }
+        catch (error) {
+            return Boom.internal('Ocurrió un error al intentar eliminar la categoria');
+        }
     }
 
     return { statusCode: 200, data: null };
@@ -151,7 +170,7 @@ exports.updatePic = async (req, h) => {
     }
 
     let oldImg = categoria.img.path;
-    let newImg = path.join(path.dirname(categoria.img.path), path.basename(req.payload.img.path));
+    let newImg = Path.join(Path.dirname(categoria.img.path), Path.basename(req.payload.img.path));
     
     try {
         await fs.copyFileSync(req.payload.img.path, newImg);

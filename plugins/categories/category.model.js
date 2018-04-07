@@ -10,6 +10,10 @@ module.exports = (mongoose) => {
             required: true,
             unique: true
         },
+        slug: {
+            type: String,
+            unique: true
+        },
         description: {
             type: String,
             default: null
@@ -28,6 +32,16 @@ module.exports = (mongoose) => {
         getters: true,
         virtuals: true
     });
+
+    CategorySchema.pre('save', async function() {
+        
+        this.slug = createSlug(this.name);
+    });
+
+    const createSlug = (string) => {
+
+        return string.toLowerCase().replace(/\s/gi, '-');
+    };
 
     return mongoose.model('Category', CategorySchema);
 };

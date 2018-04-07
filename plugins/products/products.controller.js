@@ -3,14 +3,15 @@
 const { addNewProduct, removeProduct } = require('../categories/categories.controller');
 const Boom = require('boom');
 const fs = require('fs');
+const Path = require('path');
 
 exports.create = async (req, h) => {
 
     let Product = req.server.plugins.db.ProductModel;
     let payload = req.payload;
-
+    
     if (payload.img) {
-        payload.img = payload.img.path;
+        payload.img = req.server.settings.app.serverUploadsPath + Path.basename(payload.img.path);
     }
 
     let newProduct = new Product(payload);
@@ -57,7 +58,7 @@ exports.list = async (req, h) => {
     }
 
     try {
-        foundProducts = await Product.find({}, findOptions).populate('category', 'name');
+        foundProducts = await Product.find({}, findOptions).populate('category', 'name slug');
     }
     catch (error) {
         return Boom.internal('Error consultando la base de datos');
@@ -100,20 +101,35 @@ exports.findById = async (req, h) => {
 exports.update = async (req, h) => {
     
     let Product = req.server.plugins.db.ProductModel;
-    let updatedProduct = null;
+    let oldImg = null;
+
+    if (req.payload.img) {
+        req.payload.img = req.server.settings.app.serverUploadsPath + Path.basename(req.payload.img.path);
+    }
 
     try {
-        updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.payload);
+        if (req.payload.img) {
+            oldImg = await Product.findById(req.params.id);
+            oldImg = oldImg.img || null;
+        }
+        await Product.findByIdAndUpdate(req.params.id, req.payload);
     }
     catch (error) {
         if (error.code == 11000) {
+            if (req.payload.img) {
+                await fs.unlinkSync(req.payload.img);
+            }
             return Boom.conflict('Ya existe un producto con ese nombre');
         }
 
         return Boom.internal('Error consultando la base de datos');
     }
     
-    return { statusCode: 200, data: updatedProduct.id };
+    if (oldImg) {
+        await fs.unlinkSync(oldImg);
+    }
+    
+    return { statusCode: 200, data: null };
 };
 
 exports.remove = async (req, h) => {

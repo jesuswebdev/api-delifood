@@ -13,12 +13,10 @@ const server = new Hapi.Server({
     host: 'localhost',
     address: '0.0.0.0',
     app: {
-        uploadsDir: Path.join(__dirname, 'public/uploads')
+        uploadsDir: Path.join(__dirname, 'public/uploads'),
+        serverUploadsPath: Cfg.server.uri + '/images/'
     },
     routes: {
-        files: {
-            relativeTo: Path.join(__dirname, 'public')
-        },
         cors: true, 
     },
     cache: [{
@@ -53,7 +51,7 @@ const init = async () => {
     await server.register({
         plugin: require('./plugins/file-serve/file-serve.router'),
         routes: {
-            prefix: '/public/uploads'
+            prefix: '/images'
         }
     });
 
@@ -104,10 +102,13 @@ const init = async () => {
         method: 'GET',
         path: '/info',
         options: {
-            auth: false
+            auth: false,
+            files: {
+                relativeTo: Path.join(__dirname, 'public')
+            }
         },
         handler: async (req, h) => {
-            // console.log('hola');
+            
             return h.file('info.html');
         }
     });

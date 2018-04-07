@@ -87,13 +87,21 @@ module.exports = {
                         scope: ['admin']
                     }
                 },
+                payload: {
+                    maxBytes: 1048576,
+                    output: 'file',
+                    parse: true,
+                    allow: 'multipart/form-data',
+                    uploads: server.settings.app.uploadsDir
+                },
                 validate: {
                     params: Joi.object({
                         id: Joi.string().alphanum().length(24).required().trim()
                     }),
                     payload: Joi.object({
                         name: Joi.string().min(4).required().trim(),
-                        description: Joi.string().min(4).optional().trim()
+                        description: Joi.string().min(4).optional().trim(),
+                        img: Joi.optional()
                     }),
                     query: false
                 }
