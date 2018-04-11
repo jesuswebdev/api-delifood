@@ -1,6 +1,6 @@
 'use strict';
 
-const { hello, create, list, findById, update, remove, login, me, getUsersCount } = require('./users.controller');
+const User = require('./users.controller');
 const Joi = require('joi');
 
 module.exports = {
@@ -12,17 +12,17 @@ module.exports = {
         server.route({
             method: 'GET',
             path: '/hello',
-            handler: hello,
+            handler: User.hello,
             options: {
                 auth: false
             }
         });
         
-        //get all users
+        //find users
         server.route({
             method: 'GET',
             path: '/',
-            handler: list,
+            handler: User.find,
             options: {
                 auth: {
                     access: {
@@ -40,7 +40,7 @@ module.exports = {
         server.route({
             method: 'POST',
             path: '/',
-            handler: create,
+            handler: User.create,
             options: {
                 auth: {
                     access: {
@@ -59,32 +59,11 @@ module.exports = {
             }
         });
         
-        //get user by id
-        server.route({
-            method: 'GET',
-            path: '/{id}',
-            handler: findById,
-            options: {
-                validate: {
-                    params: Joi.object({
-                        id: Joi.string().length(24).alphanum().required().trim()
-                    }),
-                    query: false,
-                    payload: false
-                },
-                auth: {
-                    access: {
-                        scope: ['admin']
-                    }
-                }
-            }
-        });
-        
         //get user profile
         server.route({
             method: 'GET',
             path: '/me',
-            handler: me,
+            handler: User.me,
             options: {
                 validate: {
                     query: false,
@@ -102,7 +81,7 @@ module.exports = {
         server.route({
             method: 'PUT',
             path: '/{id}',
-            handler: update,
+            handler: User.update,
             options: {
                 auth: {
                     access: {
@@ -129,7 +108,7 @@ module.exports = {
         server.route({
             method: 'DELETE',
             path: '/{id}',
-            handler: remove,
+            handler: User.remove,
             options: {
                 auth: {
                     access: {
@@ -150,7 +129,7 @@ module.exports = {
         server.route({
             method: 'POST',
             path: '/login',
-            handler: login,
+            handler: User.login,
             options: {
                 auth: {
                     access: {
@@ -162,24 +141,6 @@ module.exports = {
                         email: Joi.string().email().min(10).required().trim(),
                         password: Joi.string().min(6).required().trim()
                     }),
-                    query: false
-                }
-            }
-        });
-
-        //get users count
-        server.route({
-            method: 'GET',
-            path: '/count',
-            handler: getUsersCount,
-            options: {
-                auth: {
-                    access: {
-                        scope: ['admin']
-                    }
-                },
-                validate: {
-                    payload: false,
                     query: false
                 }
             }

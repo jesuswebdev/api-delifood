@@ -1,6 +1,6 @@
 'use strict';
 
-const { create, list, findById, update, updatePicture, remove } = require('./products.controller');
+const Products = require('./products.controller');
 const Joi = require('joi');
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
         server.route({
             method: 'POST',
             path: '/',
-            handler: create,
+            handler: Products.create,
             options: {
                 auth: {
                     access: {
@@ -39,11 +39,11 @@ module.exports = {
             }
         });
 
-        //list all products
+        //find products
         server.route({
             method: 'GET',
             path: '/',
-            handler: list,
+            handler: Products.find,
             options: {
                 auth: {
                     access: {
@@ -52,28 +52,13 @@ module.exports = {
                 },
                 validate: {
                     payload: false,
-                    query: false
-                }
-            }
-        })
-
-        //find product by id
-        server.route({
-            method: 'GET',
-            path: '/{id}',
-            handler: findById,
-            options: {
-                auth: {
-                    access: {
-                        scope: ['guest', 'user', 'admin']
-                    }
-                },
-                validate: {
-                    params: Joi.object({
-                        id: Joi.string().alphanum().length(24).required().trim()
-                    }),
-                    payload: false,
-                    query: false
+                    query: Joi.object({
+                        by: Joi.string().only(['id','slug','name']),
+                        q: Joi.string(),
+                        limit: Joi.number().integer().positive(),
+                        offset: Joi.number().integer().positive(),
+                        init: Joi.boolean()
+                    }).allow(null).with('by','q')
                 }
             }
         });
@@ -82,7 +67,7 @@ module.exports = {
         server.route({
             method: 'PUT',
             path: '/{id}',
-            handler: update,
+            handler: Products.update,
             options: {
                 auth: {
                     access: {
@@ -116,7 +101,7 @@ module.exports = {
         server.route({
             method: 'DELETE',
             path: '/{id}',
-            handler: remove,
+            handler: Products.remove,
             options: {
                 auth: {
                     access: {
@@ -137,7 +122,7 @@ module.exports = {
         server.route({
             method: 'PUT',
             path: '/{id}/picture',
-            handler: updatePicture,
+            handler: Products.updatePicture,
             options: {
                 auth: {
                     access: {

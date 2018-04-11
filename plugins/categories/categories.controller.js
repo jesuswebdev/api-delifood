@@ -28,16 +28,18 @@ exports.create = async (req, h) => {
     return { statusCode: 201 , data: createdCategory };
 };
 
-exports.list = async (req, h) => {
+exports.find = async (req, h) => {
 
     let Category = req.server.plugins.db.CategoryModel;
-    let categorias = null, findOptions = null;
+    let categorias = null;
+    let findOptions = null;
     let scope = req.auth.credentials.scope;
 
     if (scope === 'guest' || scope === 'user') {
         findOptions = {
             name: true,
-            description: true
+            description: true,
+            slug: true
         };
     }
 
@@ -45,47 +47,43 @@ exports.list = async (req, h) => {
         findOptions = { };
     }
     
-    try {
-        categorias = await Category.find({}, findOptions);
+    if (!req.query.by && !req.query.q) {
+        try {
+            categorias = await Category.find({}, findOptions);
+        }
+        catch (error) {
+            return Boom.internal('Error consultando la base de datos');
+        }
     }
-    catch (error) {
-        return Boom.internal('Error consultando la base de datos');
+    if (req.query.by === 'name') {
+        try {
+            categorias = await Category.find({ name: { $regex: req.query.q, $options: 'i' } }, findOptions);
+        }
+        catch (error) {
+            return Boom.internal('Error consultando la base de datos');
+        }
+    }
+    if (req.query.by === 'id') {
+        if (req.query.q.length != 24) {
+            return Boom.badRequest('ID no válido');
+        }
+        try {
+            categorias = await Category.findById(req.query.q, findOptions);
+        }
+        catch (error) {
+            return Boom.badRequest('ID no válido');
+        }
+    }
+    if (req.query.by === 'slug') {
+        try {
+            categorias = await Category.find( { slug: req.query.q }, findOptions);
+        }
+        catch (error) {
+            return Boom.internal('Error consultando la base de datos');
+        }
     }
 
     return { statusCode: 200, data: categorias };
-};
-
-exports.findById = async (req, h) => {
-
-    let Category = req.server.plugins.db.CategoryModel;
-    let foundCategory = null, findOptions = null;
-    let scope = req.auth.credentials.scope;
-
-    //lo que retorna la busqueda si es usuario registrado/no registrado
-    if (scope === 'guest' || scope === 'user') {
-        findOptions = {
-            name: true,
-            description: true
-        };
-    }
-
-    //lo que retorna la busqueda si es admin
-    if (scope === 'admin') {
-        findOptions = {
-            name: true,
-            description: true,
-            productsCount: true
-        }
-    }
-    
-    try {
-        foundCategory = await Category.findById(req.params.id, findOptions);
-    }
-    catch (error) {
-        return Boom.internal('Error consultando la base de datos');
-    }
-    
-    return { statusCode: 200, data: foundCategory };
 };
 
 exports.update = async (req, h) => {

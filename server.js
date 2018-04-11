@@ -100,7 +100,7 @@ const init = async () => {
 
     server.route({
         method: 'GET',
-        path: '/info',
+        path: '/',
         options: {
             auth: false,
             files: {

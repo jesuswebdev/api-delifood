@@ -1,6 +1,6 @@
 'use strict';
 
-const { create, list, findById, update, remove, updatePic } = require('./categories.controller');
+const Category = require('./categories.controller');
 const Joi = require('joi');
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
         server.route({
             method: 'POST',
             path: '/',
-            handler: create,
+            handler: Category.create,
             options: {
                 auth: {
                     access: {
@@ -37,11 +37,11 @@ module.exports = {
             }
         });
 
-        //mostrar todas las categorias
+        //buscar categoria
         server.route({
             method: 'GET',
             path: '/',
-            handler: list,
+            handler: Category.find,
             options: {
                 auth: {
                     access: {
@@ -50,28 +50,10 @@ module.exports = {
                 },
                 validate: {
                     payload: false,
-                    query: false
-                }
-            }
-        });
-
-        //buscar categoria por id
-        server.route({
-            method: 'GET',
-            path: '/{id}',
-            handler: findById,
-            options: {
-                auth: {
-                    access: {
-                        scope: ['guest', 'user', 'admin']
-                    }
-                },
-                validate: {
-                    params: Joi.object({
-                        id: Joi.string().length(24).alphanum().required().trim()
-                    }),
-                    query: false,
-                    payload: false
+                    query: Joi.object({
+                        by: Joi.string().only(['id', 'slug', 'name']),
+                        q: Joi.string()
+                    }).allow(null).with('by','q')
                 }
             }
         });
@@ -80,7 +62,7 @@ module.exports = {
         server.route({
             method: 'PUT',
             path: '/{id}',
-            handler: update,
+            handler: Category.update,
             options: {
                 auth: {
                     access: {
@@ -112,7 +94,7 @@ module.exports = {
         server.route({
             method: 'DELETE',
             path: '/{id}',
-            handler: remove,
+            handler: Category.remove,
             options: {
                 auth: {
                     access: {
@@ -133,7 +115,7 @@ module.exports = {
         server.route({
             method: 'PUT',
             path: '/{id}/picture',
-            handler: updatePic,
+            handler: Category.updatePic,
             options: {
                 auth: {
                     access: {

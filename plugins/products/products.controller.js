@@ -11,6 +11,7 @@ exports.create = async (req, h) => {
     let payload = req.payload;
     
     if (payload.img) {
+
         payload.img = req.server.settings.app.serverUploadsPath + Path.basename(payload.img.path);
     }
 
@@ -36,43 +37,14 @@ exports.create = async (req, h) => {
     return { statusCode: 201, data: newProduct.id };
 };
 
-exports.list = async (req, h) => {
-    
-    let Product = req.server.plugins.db.ProductModel;
-    let findOptions = null;
-    let scope = req.auth.credentials.scope;
-    let foundProducts = null;
-
-    if (scope === 'guest' || scope === 'user') {
-        findOptions = {
-            name: true,
-            description: true,
-            category: true,
-            price: true,
-            img: true
-        };
-    }
-
-    if(scope === 'admin'){
-        findOptions = { };
-    }
-
-    try {
-        foundProducts = await Product.find({}, findOptions).populate('category', 'name slug');
-    }
-    catch (error) {
-        return Boom.internal('Error consultando la base de datos');
-    }
-
-    return { statusCode: 200, data: foundProducts };
-};
-
-exports.findById = async (req, h) => {
+exports.find = async (req, h) => {
 
     let Product = req.server.plugins.db.ProductModel;
     let findOptions = null;
     let scope = req.auth.credentials.scope;
     let foundProduct = null;
+    let resultsCount = 0;
+    let aggregateStages = [];
 
     if (scope === 'guest' || scope === 'user') {
         findOptions = {
@@ -80,19 +52,90 @@ exports.findById = async (req, h) => {
             description: true,
             category: true,
             price: true,
-            img: true
+            img: true,
+            slug: true
         };
     }
 
-    if(scope === 'admin'){
-        findOptions = {};
+    if (!req.query.by && !req.query.q) {
+        try {
+            if(req.query.init && req.query.init === true) {
+                resultsCount = await Product.count({});
+            }
+            
+            if (req.query.offset || req.query.limit) {
+                if (req.query.offset) {
+                    aggregateStages.push({ $skip: req.query.offset });
+                }
+                if (req.query.limit) {
+                    aggregateStages.push({ $limit: req.query.limit });
+                }
+                if (scope != 'admin') {
+                    aggregateStages.push({ $project: findOptions });
+                }
+                
+                foundProduct = await Product.aggregate(aggregateStages);
+                foundProduct = await Product.populate(foundProduct, { path: 'category', select : 'name slug' });
+            }
+            else {
+                foundProduct = await Product.find({}, findOptions).populate('category', 'name slug');
+            }
+        }
+        catch (error) {
+            return Boom.internal('Error consultando la base de datos');
+        }
+    }
+    if (req.query.by === 'id') {
+        if (req.query.q.length != 24) {
+            return Boom.badRequest('ID no válido');
+        }
+        try {
+            foundProduct = await Product.findById(req.query.q, findOptions).populate('category', 'name slug');
+        }
+        catch (error) {
+            return Boom.badRequest('ID no válido');
+        }
+    }
+    if (req.query.by === 'slug') {
+        try {
+            foundProduct = await Product.findOne({ slug: req.query.q }, findOptions).populate('category', 'name slug');
+        }
+        catch (error) {
+            return Boom.internal('Error consultando la base de datos');
+        }
+    }
+    if (req.query.by === 'name') {
+        try {
+            if(req.query.init && req.query.init === true) {
+                resultsCount = await Product.count({ name: { $regex: req.query.q, $options: 'i' } });
+            }
+            if (req.query.offset || req.query.limit) {
+                aggregateStages.push({ $match: { name: { $regex: req.query.q, $options: 'i' } }});
+
+                if (req.query.offset) {
+                    aggregateStages.push({ $skip: req.query.offset });
+                }
+                if (req.query.limit) {
+                    aggregateStages.push({ $limit: req.query.limit });
+                }
+                if (scope != 'admin') {
+                    aggregateStages.push({ $project: findOptions });
+                }
+                
+                foundProduct = await Product.aggregate(aggregateStages);
+                foundProduct = await Product.populate(foundProduct, { path: 'category', select : 'name slug' });
+            }
+            else {
+                foundProduct = await Product.find({ name: { $regex: req.query.q, $options: 'i' } }, findOptions).populate('category', 'name slug');
+            }
+        }
+        catch (error) {
+            return Boom.internal('Error consultando la base de datos');
+        }
     }
 
-    try {
-        foundProduct = await Product.findById(req.params.id, findOptions).populate('category', 'name');
-    }
-    catch (error) {
-        return Boom.internal('Error consultando la base de datos');
+    if (req.query.init && req.query.init === true) {
+        return { statusCode: 200, data: { results: foundProduct, count: resultsCount } };
     }
 
     return { statusCode: 200, data: foundProduct };
