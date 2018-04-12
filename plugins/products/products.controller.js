@@ -23,7 +23,7 @@ exports.create = async (req, h) => {
     catch (error) {
         if (error.code === 11000) {
             if (payload.picture) {
-                await fs.unlinkSync(newProduct.img.path);
+                await fs.unlinkSync(req.payload.img.path);
             }
 
             return Boom.conflict('Ya existe un producto con ese nombre'); 
@@ -145,6 +145,7 @@ exports.update = async (req, h) => {
     
     let Product = req.server.plugins.db.ProductModel;
     let oldImg = null;
+    let uploadsDir = req.server.settings.app.uploadsDir;
 
     if (req.payload.img) {
         req.payload.img = req.server.settings.app.serverUploadsPath + Path.basename(req.payload.img.path);
@@ -160,7 +161,7 @@ exports.update = async (req, h) => {
     catch (error) {
         if (error.code == 11000) {
             if (req.payload.img) {
-                await fs.unlinkSync(req.payload.img);
+                await fs.unlinkSync(Path.join(uploadsDir, Path.basename(req.payload.img)));
             }
             return Boom.conflict('Ya existe un producto con ese nombre');
         }
@@ -169,7 +170,12 @@ exports.update = async (req, h) => {
     }
     
     if (oldImg) {
-        await fs.unlinkSync(oldImg);
+        try {
+            await fs.unlinkSync(Path.join(uploadsDir, Path.basename(oldImg)));
+        }
+        catch (e) {
+            console.log(e);
+        }
     }
     
     return { statusCode: 200, data: null };

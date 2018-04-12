@@ -14,7 +14,7 @@ const server = new Hapi.Server({
     address: '0.0.0.0',
     app: {
         uploadsDir: Path.join(__dirname, 'public/uploads'),
-        serverUploadsPath: Cfg.server.uri + '/images/'
+        serverUploadsPath: '/images/'
     },
     routes: {
         cors: true, 
