@@ -1,5 +1,7 @@
 'use strict';
 
+const Boom = require('boom');
+
 module.exports = {
 
     name: 'file-serve-route',
@@ -16,6 +18,22 @@ module.exports = {
                 auth: false,
                 files: {
                     relativeTo: server.settings.app.uploadsDir
+                }
+            }
+        });
+
+        server.route({
+            method: ['GET', 'POST', 'PUT', 'DELETE'],
+            path: '/',
+            handler: (req, h) => {
+
+                return Boom.methodNotAllowed()
+            },
+            options: {
+                auth: false,
+                validate: {
+                    payload: false,
+                    query: false
                 }
             }
         });
