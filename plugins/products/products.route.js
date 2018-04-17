@@ -2,6 +2,7 @@
 
 const Products = require('./products.controller');
 const Joi = require('joi');
+const Boom = require('boom');
 
 module.exports = {
     
@@ -62,6 +63,18 @@ module.exports = {
                 }
             }
         });
+        
+        //metodos no permitidos para la ruta /
+        server.route({
+            method: ['PUT', 'PATCH', 'DELETE'],
+            path: '/',
+            handler: () => {
+                return Boom.methodNotAllowed();
+            },
+            options: {
+                auth: false
+            }
+        });
 
         //update product info
         server.route({
@@ -115,6 +128,18 @@ module.exports = {
                     payload: false,
                     query: false
                 }
+            }
+        });
+
+        //metodos no permitidos para la ruta /{id}
+        server.route({
+            method: ['GET', 'POST', 'PATCH'],
+            path: '/{id}',
+            handler: (req, h) => {
+                return Boom.methodNotAllowed();
+            },
+            options: {
+                auth: false
             }
         });
 

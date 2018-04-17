@@ -52,6 +52,18 @@ module.exports = {
             }
         });
         
+        //metodos no permitidos para la ruta /
+        server.route({
+            method: ['PUT', 'PATCH', 'DELETE'],
+            path: '/',
+            handler: (req, h) => {
+                return Boom.methodNotAllowed();
+            },
+            options: {
+                auth: false
+            }
+        });
+
         //find order by id
         server.route({
             method: 'GET',
@@ -109,5 +121,16 @@ module.exports = {
             }
         });
  */
+        //metodos no permitidos para la ruta /{id}
+        server.route({
+            method: ['GET', 'POST', 'PATCH'],
+            path: '/{id}',
+            handler: (req, h) => {
+                return Boom.methodNotAllowed();
+            },
+            options: {
+                auth: false
+            }
+        });
     }
 };

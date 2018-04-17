@@ -67,12 +67,10 @@ exports.find = async (req, h) => {
             return Boom.internal('Error consultando la base de datos');
         }
     }
-
-    if (!foundUser || foundUser.length === 0) {
-        return Boom.notFound('No se encontró nada');
-    }
-
-    return { statusCode: 200, data: foundUser };
+    
+    return !foundUser || foundUser.length === 0 ?
+            Boom.notFound('No se encontró nada') :
+            { statusCode: 200, data: foundUser };
 
 };
 
@@ -91,12 +89,10 @@ exports.update = async (req, h) => {
 
         return Boom.internal('Ocurrió un error al intentar modificar los datos del usuario');
     }
-
-    if (!updatedUser) {
-        return Boom.notFound('El usuario no existe');
-    }
     
-    return { statusCode: 200, data: null };
+    return !updatedUser ? 
+            Boom.notFound('El usuario no existe') :
+            { statusCode: 200, data: null };
 };
 
 exports.remove = async (req, h) => {
@@ -130,11 +126,9 @@ exports.me = async (req, h) => {
         return Boom.internal('Error consultando la base de datos');
     }
 
-    if (!foundUser) {
-        return Boom.notFound('El usuario no existe');
-    }
-    
-    return { statusCode: 200, data: foundUser };
+    return !foundUser ?
+            Boom.notFound('El usuario no existe') :
+            { statusCode: 200, data: foundUser };
 };
 
 exports.login = async (req, h) => {

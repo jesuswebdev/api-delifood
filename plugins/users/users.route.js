@@ -2,6 +2,7 @@
 
 const User = require('./users.controller');
 const Joi = require('joi');
+const Boom = require('boom');
 
 module.exports = {
     
@@ -58,6 +59,18 @@ module.exports = {
                 }
             }
         });
+
+        //metodos no permitidos para la ruta /
+        server.route({
+            method: ['PUT', 'PATCH', 'DELETE'],
+            path: '/',
+            handler: (req, h) => {
+                return Boom.methodNotAllowed();
+            },
+            options: {
+                auth: false
+            }
+        });
         
         //get user profile
         server.route({
@@ -74,6 +87,19 @@ module.exports = {
                         scope: ['user', 'admin']
                     }
                 }
+            }
+        });
+
+        //no se ni siquiera si se usa esta ruta
+        //metodos no permitidos para la ruta /me
+        server.route({
+            method: ['POST', 'PUT', 'PATCH', 'DELETE'],
+            path: '/me',
+            handler: (req, h) => {
+                return Boom.methodNotAllowed();
+            },
+            options: {
+                auth: false
             }
         });
         
@@ -125,6 +151,18 @@ module.exports = {
             }
         });
 
+        //metodos no permitidos para la ruta /{id}
+        server.route({
+            method: ['GET', 'POST', 'PATCH'],
+            path: '/{id}',
+            handler: (req, h) => {
+                return Boom.methodNotAllowed();
+            },
+            options: {
+                auth: false
+            }
+        });
+
         //login user
         server.route({
             method: 'POST',
@@ -143,6 +181,18 @@ module.exports = {
                     }),
                     query: false
                 }
+            }
+        });
+
+        //metodos no permitidos para la ruta /login
+        server.route({
+            method: ['GET', 'PUT', 'PATCH', 'DELETE'],
+            path: '/login',
+            handler: (req, h) => {
+                return Boom.methodNotAllowed();
+            },
+            options: {
+                auth: false
             }
         });
     }
