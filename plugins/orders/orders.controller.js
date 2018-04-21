@@ -6,7 +6,7 @@ exports.create = async (req, h) => {
 
     let Order = req.server.plugins.db.OrderModel;
     let newOrder = new Order(req.payload);
-
+    
     newOrder.user = req.auth.credentials.id;
 
     try {
@@ -15,8 +15,8 @@ exports.create = async (req, h) => {
     catch (error) {
         return Boom.internal('Error consultando la base de datos');
     }
-
-    return { statusCode: 201, data: newOrder.id };
+    
+    return { statusCode: 201, data: newOrder };
 };
 
 exports.list = async (req, h) => {

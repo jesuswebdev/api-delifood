@@ -123,7 +123,7 @@ module.exports = {
  */
         //metodos no permitidos para la ruta /{id}
         server.route({
-            method: ['GET', 'POST', 'PATCH'],
+            method: ['POST', 'PATCH'],
             path: '/{id}',
             handler: (req, h) => {
                 return Boom.methodNotAllowed();

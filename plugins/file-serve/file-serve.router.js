@@ -23,7 +23,7 @@ module.exports = {
         });
 
         server.route({
-            method: ['GET', 'POST', 'PUT', 'DELETE'],
+            method: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
             path: '/',
             handler: (req, h) => {
 
