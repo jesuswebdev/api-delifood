@@ -15,20 +15,44 @@ exports.create = async (req, h) => {
     catch (error) {
         return Boom.internal('Error consultando la base de datos');
     }
+
+    // newOrder = await newOrder.populate('products.product', 'name');
+    newOrder = await Order.populate(newOrder, { path: 'products.product', select: 'name' });
     
     return { statusCode: 201, data: newOrder };
 };
 
-exports.list = async (req, h) => {
+exports.find = async (req, h) => {
     
     let Order = req.server.plugins.db.OrderModel;
     let foundOrders = null;
     let findOptions = {};
     let scope = req.auth.credentials.scope;
+    let by = req.query.by;
+    let query = req.query.q;
 
-    if (scope === 'user') {
+    if (by === undefined && query === undefined && scope === 'user') {
         findOptions = {
             user: req.auth.credentials.id
+        }
+    }
+    if (by === 'user' && scope === 'admin') {
+        findOptions = {
+            user: query
+        }
+    }
+    else if (by === 'user' && scope === 'user') {
+        return Boom.forbidden('Permisos insuficientes');
+    }
+    if (by === 'id' && scope === 'admin') {
+        findOptions = {
+            _id: query
+        };
+    }
+    else if (by === 'id' && scope === 'user') {
+        findOptions = {
+            user: req.auth.credentials.id,
+            _id: query
         };
     }
 
@@ -41,30 +65,7 @@ exports.list = async (req, h) => {
         return Boom.internal('Error consultando la base de datos');
     }
 
-    return { statusCode: 200, data: foundOrders };
-};
-
-exports.findById = async (req, h) => {
-    
-    let Order = req.server.plugins.db.OrderModel;
-    let foundOrder = null;
-
-    try {
-        foundOrder = await Order.findById(req.params.id)
-                                .populate('user', 'name')
-                                .populate('products.product','name');
-    }
-    catch (error) {
-        return Boom.internal('Error consultando la base de datos');
-    }
-
-    if (req.auth.credentials.scope === 'user' &&
-        foundOrder.user.id != req.auth.credentials.id) {
-
-        foundOrder = null;
-    }
-
-    return { statusCode: 200, data: foundOrder };
+    return { statusCode: 200, data: foundOrders.length === 0 ? null : foundOrders };
 };
 
 exports.update = async (req, h) => {

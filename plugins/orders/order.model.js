@@ -21,9 +21,16 @@ module.exports = (mongoose) => {
         },
         products: [productSubschema],
         status: {
-            type: String,
-            enum: ['Pendiente', 'Aprobado', 'Rechazado'],
-            default: 'Pendiente'
+            code: {
+                type: Number,
+                enum: [0, 1, 2],
+                default: 0
+            },
+            text: {
+                type: String,
+                enum: ['Pendiente', 'Aprobado', 'Rechazado'],
+                default: 'Pendiente'
+            }
         },
         created: {
             type: Date,

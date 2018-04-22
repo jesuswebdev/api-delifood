@@ -1,6 +1,6 @@
 'use strict';
 
-const { create, list, findById } = require('./orders.controller');
+const { create, find, findById } = require('./orders.controller');
 const Joi = require('joi');
 
 module.exports = {
@@ -38,7 +38,7 @@ module.exports = {
         server.route({
             method: 'GET',
             path: '/',
-            handler: list,
+            handler: find,
             options: {
                 auth: {
                     access: {
@@ -47,7 +47,10 @@ module.exports = {
                 },
                 validate: {
                     payload: false,
-                    query: false
+                    query: Joi.object({
+                        by: Joi.string().only(['user', 'id']),
+                        q: Joi.string().alphanum().length(24)
+                    }).allow(null).with('by', 'q')
                 }
             }
         });
@@ -64,26 +67,6 @@ module.exports = {
             }
         });
 
-        //find order by id
-        server.route({
-            method: 'GET',
-            path: '/{id}',
-            handler: findById,
-            options: {
-                auth: {
-                    access: {
-                        scope: ['user', 'admin']
-                    }
-                },
-                validate: {
-                    params: Joi.object({
-                        id: Joi.string().alphanum().length(24).required().trim()
-                    }),
-                    payload: false,
-                    query: false
-                }
-            }
-        });
 /* 
         //update order
         server.route({
