@@ -15,8 +15,7 @@ exports.create = async (req, h) => {
     catch (error) {
         return Boom.internal('Error consultando la base de datos');
     }
-
-    // newOrder = await newOrder.populate('products.product', 'name');
+    
     newOrder = await Order.populate(newOrder, { path: 'products.product', select: 'name' });
     
     return { statusCode: 201, data: newOrder };
@@ -55,11 +54,11 @@ exports.find = async (req, h) => {
             _id: query
         };
     }
-
+    
     try {
         foundOrders = await Order.find(findOptions)
                                  .populate('user', 'name')
-                                 .populate('products.product', 'name');
+                                 .populate('products.product', 'name description img');
     }
     catch (error) {
         return Boom.internal('Error consultando la base de datos');

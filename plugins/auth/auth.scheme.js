@@ -50,7 +50,7 @@ module.exports = {
                             let foundUser = await User.findById(payload.sub);
 
                             if (!foundUser) {
-                                return Boom.notFound('Error de autenticación. El usuario no existe');
+                                return Boom.unauthorized('Error de autenticación. El usuario no existe');
                             }
 
                             credenciales = {
