@@ -16,7 +16,7 @@ exports.create = async (req, h) => {
         return Boom.internal('Error consultando la base de datos');
     }
     
-    newOrder = await Order.populate(newOrder, { path: 'products.product', select: 'name' });
+    newOrder = await Order.populate(newOrder, { path: 'products.product', select: 'name description img' });
     
     return { statusCode: 201, data: newOrder };
 };
