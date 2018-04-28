@@ -1,25 +1,8 @@
 'use strict';
 
 const Boom = require('boom');
-
-exports.create = async (req, h) => {
-
-    let Order = req.server.plugins.db.OrderModel;
-    let newOrder = new Order(req.payload);
-    
-    newOrder.user = req.auth.credentials.id;
-
-    try {
-        newOrder = await newOrder.save();
-    }
-    catch (error) {
-        return Boom.internal('Error consultando la base de datos');
-    }
-    
-    newOrder = await Order.populate(newOrder, { path: 'products.product', select: 'name description img' });
-    
-    return { statusCode: 201, data: newOrder };
-};
+const { stripeKey } = require('../../config/config.js');
+const Stripe = require('stripe')(stripeKey.secretKey);
 
 exports.find = async (req, h) => {
     
@@ -74,3 +57,47 @@ exports.update = async (req, h) => {
 exports.remove = async (req, h) => {
     return req.payload;
 };
+
+exports.payWithStripe = async (req, h) => {
+
+    let customer = await Stripe.customers.create({
+        email: req.payload.token.email,
+        source: req.payload.token.id
+    });
+    
+    let amount = req.payload.order.totalPayment * 100;
+
+    let charge = await Stripe.charges.create({
+        amount,
+        description: 'simple charge',
+        currency: 'usd',
+        customer: customer.id
+    });
+
+    let Order = req.server.plugins.db.OrderModel;
+    let newOrder = new Order(req.payload.order);
+
+    newOrder.user = req.auth.credentials.id;
+    newOrder.paymentProcessor = 'stripe';
+    newOrder.paymentId = charge.id;
+
+    if (charge.outcome.network_status === 'approved_by_network' &&
+        charge.paid === true &&
+        charge.status === 'succeeded')
+    {
+        try {
+            newOrder = await newOrder.save();
+        }
+        catch (error) {
+            return Boom.internal('Error consultando la base de datos');
+        }
+    }
+    
+    newOrder = await Order.populate(newOrder, { path: 'products.product', select: 'name description img' });
+    
+    return { statusCode: 201, data: newOrder };
+};
+
+exports.payWithPayPal = async (req, h) => {
+
+}

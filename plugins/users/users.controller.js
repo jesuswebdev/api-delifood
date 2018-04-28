@@ -3,6 +3,7 @@
 const Cfg = require('../../config/config');
 const Boom = require('boom');
 const Iron = require('iron');
+const UserModel = require('mongoose').model('User');
 
 exports.create = async (req, h) => {
 
@@ -168,7 +169,7 @@ exports.login = async (req, h) => {
         name: foundUser.name,
         email: foundUser.email,
         role: foundUser.role,
-        id: foundUser.id
+        id: foundUser._id
     };
 
     let token = await Iron.seal(payload, Cfg.iron.password, Iron.defaults);

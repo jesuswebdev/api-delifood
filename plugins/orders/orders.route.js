@@ -1,6 +1,6 @@
 'use strict';
 
-const { create, find, findById } = require('./orders.controller');
+const { create, find, findById, payWithStripe } = require('./orders.controller');
 const Joi = require('joi');
 
 module.exports = {
@@ -8,11 +8,10 @@ module.exports = {
     name: 'orders-routes',
     register: async (server, options) => {
 
-        //create order
         server.route({
             method: 'POST',
-            path: '/',
-            handler: create,
+            path: '/payment/stripe',
+            handler: payWithStripe,
             options: {
                 auth: {
                     access: {
@@ -21,13 +20,16 @@ module.exports = {
                 },
                 validate: {
                     payload: Joi.object({
-                        products: Joi.array().items(Joi.object({
-                            product: Joi.string().alphanum().length(24).required(),
-                            unitPrice: Joi.number().positive().precision(2).required(),
-                            quantity: Joi.number().positive().integer().min(1).required(),
-                            totalPrice: Joi.number().positive().precision(2).required()
-                        })),
-                        totalPayment: Joi.number().positive().precision(2).min(1).required()
+                        token: Joi.object().options({ allowUnknown: true }),
+                        order: Joi.object({
+                            products: Joi.array().items(Joi.object({
+                                product: Joi.string().alphanum().length(24).required(),
+                                unitPrice: Joi.number().positive().precision(2).required(),
+                                quantity: Joi.number().positive().integer().min(1).required(),
+                                totalPrice: Joi.number().positive().precision(2).required()
+                            })),
+                            totalPayment: Joi.number().positive().precision(2).min(1).required()
+                        })
                     }),
                     query: false
                 }
@@ -54,60 +56,11 @@ module.exports = {
                 }
             }
         });
-        
-        //metodos no permitidos para la ruta /
-        server.route({
-            method: ['PUT', 'PATCH', 'DELETE'],
-            path: '/',
-            handler: (req, h) => {
-                return Boom.methodNotAllowed();
-            },
-            options: {
-                auth: false
-            }
-        });
 
-/* 
-        //update order
+        //metodos no permitidos para la ruta raiz /
         server.route({
-            method: 'PUT',
+            method: ['POST', 'PUT', 'PATCH', 'DELETE'],
             path: '/',
-            handler: OrdersController.update,
-            options: {
-                auth: {
-                    access: {
-                        scope: ['admin']
-                    }
-                },
-                validate: {
-                    payload: Joi.object(),
-                    query: false
-                }
-            }
-        });
-
-        //delete order
-        server.route({
-            method: 'DELETE',
-            path: '/',
-            handler: OrdersController.delete,
-            options: {
-                auth: {
-                    access: {
-                        scope: ['user', 'admin']
-                    }
-                },
-                validate: {
-                    payload: Joi.object(),
-                    query: false
-                }
-            }
-        });
- */
-        //metodos no permitidos para la ruta /{id}
-        server.route({
-            method: ['POST', 'PATCH'],
-            path: '/{id}',
             handler: (req, h) => {
                 return Boom.methodNotAllowed();
             },

@@ -38,13 +38,14 @@ exports.create = async (req, h) => {
 };
 
 exports.find = async (req, h) => {
-
+    
     let Product = req.server.plugins.db.ProductModel;
-    let findOptions = null;
+    let findOptions = {};
     let scope = req.auth.credentials.scope;
     let foundProduct = null;
     let resultsCount = 0;
-    let aggregateStages = [];
+    let skip = req.query.offset ? req.query.offset : false;
+    let limit = req.query.limit ? req.query.limit : false; 
 
     if (scope === 'guest' || scope === 'user') {
         findOptions = {
@@ -62,24 +63,11 @@ exports.find = async (req, h) => {
             if(req.query.init && req.query.init === true) {
                 resultsCount = await Product.count({});
             }
-            
-            if (req.query.offset || req.query.limit) {
-                if (req.query.offset) {
-                    aggregateStages.push({ $skip: req.query.offset });
-                }
-                if (req.query.limit) {
-                    aggregateStages.push({ $limit: req.query.limit });
-                }
-                if (scope != 'admin') {
-                    aggregateStages.push({ $project: findOptions });
-                }
-                
-                foundProduct = await Product.aggregate(aggregateStages);
-                foundProduct = await Product.populate(foundProduct, { path: 'category', select : 'name slug' });
-            }
-            else {
-                foundProduct = await Product.find({}, findOptions).populate('category', 'name slug');
-            }
+
+            foundProduct = await Product.find({}, findOptions)
+                                        .skip(skip)
+                                        .limit(limit)
+                                        .populate('category', 'name slug');
         }
         catch (error) {
             return Boom.internal('Error consultando la base de datos');
@@ -109,25 +97,11 @@ exports.find = async (req, h) => {
             if(req.query.init && req.query.init === true) {
                 resultsCount = await Product.count({ name: { $regex: req.query.q, $options: 'i' } });
             }
-            if (req.query.offset || req.query.limit) {
-                aggregateStages.push({ $match: { name: { $regex: req.query.q, $options: 'i' } }});
 
-                if (req.query.offset) {
-                    aggregateStages.push({ $skip: req.query.offset });
-                }
-                if (req.query.limit) {
-                    aggregateStages.push({ $limit: req.query.limit });
-                }
-                if (scope != 'admin') {
-                    aggregateStages.push({ $project: findOptions });
-                }
-                
-                foundProduct = await Product.aggregate(aggregateStages);
-                foundProduct = await Product.populate(foundProduct, { path: 'category', select : 'name slug' });
-            }
-            else {
-                foundProduct = await Product.find({ name: { $regex: req.query.q, $options: 'i' } }, findOptions).populate('category', 'name slug');
-            }
+            foundProduct = await Product.find({ name: { $regex: req.query.q, $options: 'i' } }, findOptions)
+                                        .skip(skip)
+                                        .limit(limit)
+                                        .populate('category', 'name slug');
         }
         catch (error) {
             return Boom.internal('Error consultando la base de datos');

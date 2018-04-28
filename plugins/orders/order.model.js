@@ -20,27 +20,19 @@ module.exports = (mongoose) => {
             ref: 'User'
         },
         products: [productSubschema],
-        status: {
-            code: {
-                type: Number,
-                enum: [0, 1, 2],
-                default: 0
-            },
-            text: {
-                type: String,
-                enum: ['Pendiente', 'Aprobado', 'Rechazado'],
-                default: 'Pendiente'
-            }
-        },
         created: {
             type: Date,
             default: Date.now
         },
-        approved: {
-            type: Date
-        },
         totalPayment: {
             type: Number
+        },
+        paymentProcessor: {
+            type: String,
+            enum: ['paypal', 'stripe']
+        },
+        paymentId: {
+            type: String
         }
     });
 
