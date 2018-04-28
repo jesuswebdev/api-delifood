@@ -64,8 +64,12 @@ module.exports = (mongoose) => {
     };
     
     UserSchema.methods.validatePassword = async (loginAttemptPassword, userPassword) => {
+
+        if (userPassword !== undefined) {
+            return await Bcrypt.compare(loginAttemptPassword, userPassword);
+        }
         
-        return await Bcrypt.compare(loginAttemptPassword, userPassword);
+        return false;
     };
 
     UserSchema.set('toJSON',{

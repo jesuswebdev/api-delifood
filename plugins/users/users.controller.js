@@ -170,7 +170,7 @@ exports.login = async (req, h) => {
     if (!foundUser) {
         return Boom.badData('Combinacion de Usuario/Contraseña incorrectos');
     }
-
+    
     let same = await foundUser.validatePassword(req.payload.password, foundUser.password);
     
     if (!same) {
