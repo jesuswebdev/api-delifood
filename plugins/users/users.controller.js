@@ -3,23 +3,46 @@
 const Cfg = require('../../config/config');
 const Boom = require('boom');
 const Iron = require('iron');
-const UserModel = require('mongoose').model('User');
+const Wreck = require('wreck');
 
 exports.create = async (req, h) => {
 
     let User = req.server.plugins.db.UserModel;
-    let newUser = new User(req.payload);
 
-    try {
-        newUser = await newUser.save();
+    let foundUser = await User.findOne({ email: req.payload.email });
+    let newUser;
+    
+    if (!foundUser) {
+        try {
+            newUser = new User(req.payload);
+            newUser = await newUser.save();
+        }
+        catch (error) {
+            //manejar error 11000 correo en uso
+            if (error.code == 11000) {
+                return Boom.conflict('Correo electrónico en uso');
+            }
+            return Boom.internal('Error al registrar el usuario');
+        }
     }
-    catch (error) {
-        //manejar error 11000 correo en uso
-        if (error.code == 11000) {
+    else if (foundUser && !foundUser.facebookId && !foundUser.googleId) {
+        return Boom.conflict('Correo electronico en uso');
+    }
+    else if (foundUser && (foundUser.facebookId || foundUser.googleId)) {
+
+        if (!foundUser.password) {
+            foundUser.password = req.payload.password;
+    
+            try {
+                newUser = await foundUser.save();
+            }
+            catch (error) {
+                return Boom.internal('Error registrando usuario');
+            }
+        }
+        else {
             return Boom.conflict('Correo electrónico en uso');
         }
-
-        return Boom.internal('Error al registrar el usuario');
     }
 
     return { statusCode: 200, data: newUser.id };
@@ -187,4 +210,72 @@ exports.hello = async (req, h) => {
     let token = await Iron.seal(payload, Cfg.iron.password, Iron.defaults);
 
     return token;
+}
+
+exports.facebookLogin = async (req, h) => {
+
+    // url de la api de facebook para obtener el nombre, id y correo del token
+    let facebookUrl = `https://graph.facebook.com/v2.12/me?fields=id,name,email&access_token=${req.payload.token}`;
+    
+    // se llama a la api con wreck
+    let { payload } = await Wreck.get(facebookUrl);
+
+    // se parsea la respuesta para poder tener el nombre, id y correo en un objeto
+    let facebookResponse = JSON.parse(payload.toString());
+    let User = req.server.plugins.db.UserModel;
+
+    // se busca en la base de datos para saber si el usuario esta registrado con facebook
+    let foundUser = await User.findOne({ facebookId: facebookResponse.id });
+    
+    // si el usuario no tiene facebookId
+    if (!foundUser) {
+
+        // se busca ahora por el correo para saber si existe
+        foundUser = await User.findOne({ email: facebookResponse.email });
+        
+        // si el usuario no existe se crea
+        if (!foundUser) {
+
+            foundUser = new User();
+            foundUser.name = facebookResponse.name;
+            foundUser.email = facebookResponse.email;
+            foundUser.facebookId = facebookResponse.id;
+
+            try {
+                foundUser = await foundUser.save();
+            }
+            catch (error) {
+                return Boom.internal('Error registrando al usuario con facebook');
+            }
+        }
+        else {
+            foundUser = await User.findByIdAndUpdate(foundUser._id, { $set: { facebookId: facebookResponse.id } });
+        }
+    }
+
+    if (foundUser.banned === true) {
+        return Boom.forbidden('Tu cuenta se encuentra suspendida');
+    }
+
+    let tokenPayload = {
+        name: foundUser.name,
+        email: foundUser.email,
+        sub: foundUser.id,
+        scope: foundUser.role
+    };
+
+    let userToReturn = {
+        name: foundUser.name,
+        email: foundUser.email,
+        role: foundUser.role,
+        id: foundUser._id
+    };
+
+    let token = await Iron.seal(tokenPayload, Cfg.iron.password, Iron.defaults);
+
+    return { statusCode: 200, data: { user: userToReturn, token: token } };
+}
+
+exports.googleLogin = async (req, h) => {
+    return { text: 'google login'};
 }

@@ -18,7 +18,8 @@
     "inert": "^5.1.0",
     "iron": "^5.0.4",
     "mongoose": "^5.0.8",
-    "stripe": "^5.8.0"
+    "stripe": "^5.8.0",
+    "wreck": "^14.0.2"
   },
   "devDependencies": {
     "code": "^5.2.0",

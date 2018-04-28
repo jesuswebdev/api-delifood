@@ -18,13 +18,11 @@ module.exports = (mongoose) => {
         },
         email: {
             type: String,
-            unique: true,
             required: true
         },
         password: {
             type: String,
-            minlength: 6,
-            required: true
+            minlength: 6
         },
         address: {
             type: String
@@ -41,6 +39,12 @@ module.exports = (mongoose) => {
         created: {
             type: Date,
             default: Date.now()
+        },
+        facebookId: {
+            type: String
+        },
+        googleId: {
+            type: String
         }
     });
         

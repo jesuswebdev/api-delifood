@@ -195,5 +195,65 @@ module.exports = {
                 auth: false
             }
         });
+
+        server.route({
+            method: 'POST',
+            path: '/login/facebook',
+            handler: User.facebookLogin,
+            options: {
+                auth: {
+                    access: {
+                        scope: ['guest']
+                    }
+                },
+                validate: {
+                    payload: Joi.object({
+                        token: Joi.string().token().required()
+                    }),
+                    query: false
+                }
+            }
+        });
+
+        server.route({
+            method: ['GET', 'PUT', 'PATCH', 'DELETE'],
+            path: '/login/facebook',
+            handler: (req, h) => {
+                return Boom.methodNotAllowed();
+            },
+            options: {
+                auth: false
+            }
+        });
+
+        server.route({
+            method: ['GET', 'PUT', 'PATCH', 'DELETE'],
+            path: '/login/google',
+            handler: (req, h) => {
+                return Boom.methodNotAllowed();
+            },
+            options: {
+                auth: false
+            }
+        });
+
+        server.route({
+            method: 'POST',
+            path: '/login/google',
+            handler: User.googleLogin,
+            options: {
+                auth: {
+                    access: {
+                        scope: ['guest']
+                    }
+                },
+                validate: {
+                    payload: Joi.object({
+                        token: Joi.string().required()
+                    }),
+                    query: false
+                }
+            }
+        });
     }
 } 

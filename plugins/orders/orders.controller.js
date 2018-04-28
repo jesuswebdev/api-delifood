@@ -1,8 +1,8 @@
 'use strict';
 
 const Boom = require('boom');
-const { stripeKey } = require('../../config/config.js');
-const Stripe = require('stripe')(stripeKey.secretKey);
+const stripeKey = require('../../config/auth').stripe.secretKey;
+const Stripe = require('stripe')(stripeKey);
 
 exports.find = async (req, h) => {
     

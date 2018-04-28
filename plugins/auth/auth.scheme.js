@@ -3,6 +3,7 @@
 const Boom = require('boom');
 const Iron = require('iron');
 const Cfg = require('../../config/config');
+const authConfig = require('../../config/auth');
 
 module.exports = {
 
