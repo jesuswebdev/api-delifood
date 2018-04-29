@@ -4,6 +4,7 @@ const Cfg = require('../../config/config');
 const Boom = require('boom');
 const Iron = require('iron');
 const Wreck = require('wreck');
+const googleAuthConfig = require('../../config/auth').google;
 
 exports.create = async (req, h) => {
 
@@ -177,27 +178,7 @@ exports.login = async (req, h) => {
         return Boom.badData('Combinacion de Usuario/Contraseña incorrectos');
     }
 
-    if (foundUser.banned === true) {
-        return Boom.forbidden('Tu cuenta se encuentra suspendida');
-    }
-
-    let payload = {
-        name: foundUser.name,
-        email: foundUser.email,
-        sub: foundUser.id,
-        scope: foundUser.role
-    };
-
-    let userToReturn = {
-        name: foundUser.name,
-        email: foundUser.email,
-        role: foundUser.role,
-        id: foundUser._id
-    };
-
-    let token = await Iron.seal(payload, Cfg.iron.password, Iron.defaults);
-
-    return { statusCode: 200, data: { user: userToReturn, token: token } };
+    return await loginResponse(foundUser);
 };
 
 exports.hello = async (req, h) => {
@@ -252,7 +233,51 @@ exports.facebookLogin = async (req, h) => {
             foundUser = await User.findByIdAndUpdate(foundUser._id, { $set: { facebookId: facebookResponse.id } });
         }
     }
+    
+    return await loginResponse(foundUser);
+}
 
+exports.googleLogin = async (req, h) => {
+
+    let googleUrl = `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${req.payload.token}`;
+    let { payload } = await Wreck.get(googleUrl);
+    
+    let googleResponse = JSON.parse(payload.toString());
+
+    if (googleResponse.aud !== googleAuthConfig.clientID) {
+        return Boom.badData('Token no válido');
+    }
+    
+    let User = req.server.plugins.db.UserModel;
+
+    let foundUser = await User.findOne({ googleId: googleResponse.sub });
+    
+    if (!foundUser) {
+        
+        foundUser = await User.findOne({ email: googleResponse.email });
+        
+        if (!foundUser) {
+            foundUser = new User();
+            foundUser.name = googleResponse.name;
+            foundUser.email = googleResponse.email;
+            foundUser.googleId = googleResponse.sub;
+            try {
+                foundUser = await foundUser.save();
+            }
+            catch (error) {
+                return Boom.internal('Error registrando al usuario con google');
+            }
+        }
+        else {
+            foundUser = await User.findByIdAndUpdate(foundUser._id, { $set: { googleId: googleResponse.sub } });
+        }
+    }
+
+    return await loginResponse(foundUser);
+}
+
+const loginResponse = async (foundUser) => {
+    
     if (foundUser.banned === true) {
         return Boom.forbidden('Tu cuenta se encuentra suspendida');
     }
@@ -274,8 +299,4 @@ exports.facebookLogin = async (req, h) => {
     let token = await Iron.seal(tokenPayload, Cfg.iron.password, Iron.defaults);
 
     return { statusCode: 200, data: { user: userToReturn, token: token } };
-}
-
-exports.googleLogin = async (req, h) => {
-    return { text: 'google login'};
 }
