@@ -172,5 +172,23 @@ module.exports = {
                 }
             }
         });
+
+        //best seller
+        server.route({
+            method: 'GET',
+            path: '/best-seller',
+            handler: Products.bestSellers,
+            options: {
+                auth: {
+                    access: {
+                        scope: ['guest', 'user', 'admin']
+                    }
+                },
+                validate: {
+                    payload: false,
+                    query: false
+                }
+            }
+        });
     }
 }

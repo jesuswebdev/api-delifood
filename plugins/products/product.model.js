@@ -29,11 +29,11 @@ module.exports = (mongoose) => {
             type: Boolean,
             default: true
         },
-        totalTimesOrdered: {
+        timesSold: {
             type: Number,
             default: 0
         },
-        totalSold: {
+        totalQuantitySold: {
             type: Number,
             default: 0
         },

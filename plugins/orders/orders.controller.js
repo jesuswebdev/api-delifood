@@ -3,6 +3,7 @@
 const Boom = require('boom');
 const stripeKey = require('../../config/auth').stripe.secretKey;
 const Stripe = require('stripe')(stripeKey);
+const { newSale } = require('../products/products.controller');
 
 exports.find = async (req, h) => {
     
@@ -87,6 +88,9 @@ exports.payWithStripe = async (req, h) => {
     {
         try {
             newOrder = await newOrder.save();
+            newOrder.products.map(async (product) => {
+               await newSale(product.product, product.quantity);
+            })
         }
         catch (error) {
             return Boom.internal('Error consultando la base de datos');

@@ -293,7 +293,9 @@ const loginResponse = async (foundUser) => {
         name: foundUser.name,
         email: foundUser.email,
         role: foundUser.role,
-        id: foundUser._id
+        id: foundUser._id,
+        address: foundUser.address,
+        phone: foundUser.phone
     };
 
     let token = await Iron.seal(tokenPayload, Cfg.iron.password, Iron.defaults);

@@ -111,7 +111,7 @@ module.exports = {
             options: {
                 auth: {
                     access: {
-                        scope: ['user', 'admin']
+                        scope: ['admin']
                     }
                 },
                 validate: {
@@ -122,7 +122,7 @@ module.exports = {
                         name: Joi.string().regex(/^[a-zA-Z][a-zA-ZáéíóúÁÉÍÓÚñÑ\s\.]+$/).min(6).required().trim(),
                         email: Joi.string().email().required().trim(),
                         id: Joi.string().alphanum().length(24).required().trim(),
-                        role: Joi.string().allow(['user', 'admin']).required().trim(),
+                        role: Joi.string().allow(['admin']).required().trim(),
                         banned: Joi.boolean().required()
                     }),
                     query: false

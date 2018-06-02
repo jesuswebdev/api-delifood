@@ -4,10 +4,10 @@ const { addNewProduct, removeProduct } = require('../categories/categories.contr
 const Boom = require('boom');
 const fs = require('fs');
 const Path = require('path');
+const Product = require('mongoose').model('Product');
 
 exports.create = async (req, h) => {
 
-    let Product = req.server.plugins.db.ProductModel;
     let payload = req.payload;
     
     if (payload.img) {
@@ -39,7 +39,6 @@ exports.create = async (req, h) => {
 
 exports.find = async (req, h) => {
     
-    let Product = req.server.plugins.db.ProductModel;
     let findOptions = {};
     let scope = req.auth.credentials.scope;
     let foundProduct = null;
@@ -117,7 +116,6 @@ exports.find = async (req, h) => {
 
 exports.update = async (req, h) => {
     
-    let Product = req.server.plugins.db.ProductModel;
     let oldImg = null;
     let uploadsDir = req.server.settings.app.uploadsDir;
 
@@ -156,8 +154,7 @@ exports.update = async (req, h) => {
 };
 
 exports.remove = async (req, h) => {
-
-    let Product = req.server.plugins.db.ProductModel;
+    
     let deletedProduct = null;
 
     try {
@@ -211,3 +208,27 @@ exports.updatePicture = async (req, h) => {
 
     return { statusCode: 200, data: null };
 };
+
+exports.newSale = async (productId, quantity) => {
+    
+    try {
+        await Product.findByIdAndUpdate(productId, { $inc: { timesSold: 1, totalQuantitySold: quantity } });
+    }
+    catch (err) {
+        return Boom.internal('Error creando nueva venta');
+    }
+}
+
+exports.bestSellers = async () => {
+
+    let products;
+
+    try {
+        products = Product.find().sort({ timesSold: -1 }).limit(3);
+    }
+    catch (err) {
+        return Boom.internal('Error buscando los best seller');
+    }
+
+    return { statusCode: 200, data: products };
+}
