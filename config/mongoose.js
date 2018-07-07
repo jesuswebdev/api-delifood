@@ -28,10 +28,12 @@ module.exports = {
 		let ProductModel = require('../plugins/products/product.model')(Mongoose);
 		let CategoryModel = require('../plugins/categories/category.model')(Mongoose);
 		let OrderModel = require('../plugins/orders/order.model')(Mongoose);
+		let CommentModel = require('../plugins/comments/comments.model')(Mongoose);
 
 		server.expose('UserModel', UserModel);
 		server.expose('ProductModel', ProductModel);
 		server.expose('CategoryModel', CategoryModel);
 		server.expose('OrderModel', OrderModel);
+		server.expose('CommentModel', CommentModel);
 	}
 };

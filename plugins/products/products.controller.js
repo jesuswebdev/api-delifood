@@ -53,7 +53,9 @@ exports.find = async (req, h) => {
             category: true,
             price: true,
             img: true,
-            slug: true
+            slug: true,
+            commentsCount: true,
+            totalRating: true
         };
     }
 
@@ -231,4 +233,14 @@ exports.bestSellers = async () => {
     }
 
     return { statusCode: 200, data: products };
+}
+
+exports.addNewComment = async (productId, rating) => {
+
+    try {
+        await Product.findByIdAndUpdate(productId, { $inc: { commentsCount: 1, totalRating: rating } });
+    }
+    catch (err) {
+        return Boom.internal('Error añadiendo nuevo comentario');
+    }
 }

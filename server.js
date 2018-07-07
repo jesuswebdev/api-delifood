@@ -90,6 +90,13 @@ const init = async () => {
             prefix: '/orders'
         }
     });
+
+    await server.register({
+        plugin: require('./plugins/comments/comments.route'),
+        routes: {
+            prefix: '/comments'
+        }
+    });
     
     await server.register({
         plugin: require('./plugins/test/test.route'),

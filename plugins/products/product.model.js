@@ -43,7 +43,27 @@ module.exports = (mongoose) => {
         },
         img: {
             type: String
+        },
+        comments: {
+            type: [mongoose.Schema.ObjectId]
+        },
+        commentsCount: {
+            type: Number,
+            default: 0,
+            min: 0
+        },
+        totalRating: {
+            type: Number,
+            min: 0,
+            default: 0
         }
+    });
+
+    ProductSchema.virtual('rating').get(function(){
+        if (this.commentsCount > 0) {
+            return this.totalRating / this.commentsCount;
+        }
+        return 0;
     });
 
     ProductSchema.set('toJSON',{
