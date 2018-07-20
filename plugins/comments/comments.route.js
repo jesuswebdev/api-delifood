@@ -35,7 +35,7 @@ module.exports = {
             options: {
                 auth: {
                     access: {
-                        scope: ['user', 'admin']
+                        scope: ['user', 'admin', 'guest']
                     }
                 },
                 validate: {
